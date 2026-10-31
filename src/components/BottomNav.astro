@@ -1,0 +1,55 @@
+---
+interface Props {
+  activePage?: 'laboral' | 'dashboard' | 'login' | 'none'
+}
+
+const { activePage = 'none' } = Astro.props
+---
+
+<nav
+  class="fixed inset-x-0 bottom-0 z-40 border-t sm:hidden"
+  style="background:var(--elevated-60);border-color:var(--border);backdrop-filter:blur(12px);padding-bottom:env(safe-area-inset-bottom,0px)"
+  aria-label="Navegación principal"
+>
+  <div class="mx-auto flex max-w-lg items-stretch justify-around">
+    <a
+      href="/"
+      class="flex min-h-14 min-w-20 flex-col items-center justify-center gap-1 px-3 text-xs font-semibold"
+      style={activePage === 'laboral' ? 'color:#b87912' : 'color:var(--tertiary)'}
+    >
+      <svg
+        class="h-5 w-5"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        stroke-width="1.8"
+        aria-hidden="true"
+      >
+        <circle cx="11" cy="11" r="7"></circle>
+        <path stroke-linecap="round" d="m20 20-4-4"></path>
+      </svg>
+      Cartelera
+    </a>
+    <a
+      href="/mi-cv"
+      class="flex min-h-14 min-w-20 flex-col items-center justify-center gap-1 px-3 text-xs font-semibold"
+      style={activePage === 'dashboard' ? 'color:#b87912' : 'color:var(--tertiary)'}
+    >
+      <svg
+        class="h-5 w-5"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        stroke-width="1.8"
+        aria-hidden="true"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"
+        ></path>
+      </svg>
+      Mi CV
+    </a>
+  </div>
+</nav>

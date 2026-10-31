@@ -1,0 +1,58 @@
+---
+import Layout from '../../layouts/Layout.astro'
+---
+
+<Layout
+  title="Confirmar cuenta | Búsqueda Laboral"
+  description="Confirmación de cuenta de Búsqueda Laboral."
+>
+  <main class="mx-auto flex min-h-dvh max-w-md items-center px-6 py-12">
+    <section
+      class="w-full rounded-3xl p-8 text-center"
+      style="background:var(--elevated);border:1px solid var(--border)"
+      aria-live="polite"
+    >
+      <div
+        id="confirm-spinner"
+        class="mx-auto mb-5 h-10 w-10 animate-spin rounded-full border-4 border-amber-500 border-t-transparent"
+      ></div>
+      <h1 id="confirm-title" class="text-xl font-bold">
+        Confirmando tu cuenta
+      </h1>
+      <p id="confirm-message" class="mt-2 text-sm" style="color:var(--secondary)">
+        Estamos verificando tu correo.
+      </p>
+      <a
+        id="confirm-link"
+        class="mt-5 inline-flex min-h-11 items-center justify-center rounded-xl px-5 font-semibold"
+        style="background:#d97706;color:white"
+        href="/login"
+        hidden
+      >
+        Ir a iniciar sesión
+      </a>
+    </section>
+  </main>
+</Layout>
+
+<script>
+  import { supabase } from '../../utils/supabase'
+
+  const title = document.getElementById('confirm-title')
+  const message = document.getElementById('confirm-message')
+  const spinner = document.getElementById('confirm-spinner')
+  const link = document.getElementById('confirm-link') as HTMLAnchorElement
+
+  const { data, error } = await supabase.auth.getSession()
+  if (data.session && !error) {
+    window.location.replace('/mi-cv')
+  } else {
+    if (title) title.textContent = 'No pudimos confirmar la cuenta'
+    if (message) {
+      message.textContent =
+        'El enlace puede haber vencido o ya fue utilizado. Iniciá sesión o pedí uno nuevo.'
+    }
+    spinner?.classList.add('hidden')
+    link.hidden = false
+  }
+</script>

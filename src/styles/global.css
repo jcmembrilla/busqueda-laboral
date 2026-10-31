@@ -1,0 +1,336 @@
+@import 'tailwindcss';
+
+@custom-variant light (&:where(.light, .light *));
+
+@theme {
+  --font-size-xs: clamp(0.6875rem, 0.625rem + 0.2vw, 0.75rem);
+  --font-size-sm: clamp(0.8125rem, 0.75rem + 0.25vw, 0.875rem);
+  --font-size-base: clamp(0.875rem, 0.8125rem + 0.25vw, 1rem);
+  --font-size-lg: clamp(1rem, 0.9rem + 0.4vw, 1.125rem);
+  --font-size-xl: clamp(1.125rem, 1rem + 0.5vw, 1.25rem);
+  --font-size-2xl: clamp(1.25rem, 1.1rem + 0.6vw, 1.5rem);
+}
+
+:root {
+  --surface: #121212;
+  --elevated: #1e1e1e;
+  --elevated-60: rgba(30, 30, 30, 0.6);
+  --elevated-40: rgba(30, 30, 30, 0.4);
+  --button: #1a1a1a;
+  --primary: #fff;
+  --secondary: #d1d5db;
+  --tertiary: #6b7280;
+  --quaternary: #9ca3af;
+  --border: rgba(255, 255, 255, 0.1);
+  --border-strong: #333;
+  --border-stronger: #2e2e2e;
+  --border-strongest: #2a2a2a;
+  --overlay: rgba(0, 0, 0, 0.6);
+  --logo-border: #121212;
+  --body-bg: radial-gradient(ellipse at center, #121212, #0f1411, #0a0a0a);
+  --alert-error-bg: rgba(127, 29, 29, 0.4);
+  --alert-error-border: rgba(239, 68, 68, 0.5);
+  --alert-error-text: #fca5a5;
+  --alert-success-bg: rgba(6, 78, 59, 0.4);
+  --alert-success-border: rgba(16, 185, 129, 0.5);
+  --alert-success-text: #6ee7b7;
+  --modal-overlay: rgba(0, 0, 0, 0.7);
+  --accent: #059669;
+  --card-radius: 1rem;
+  --card-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.25);
+  --card-shadow-hover: 0 12px 40px -8px rgba(0, 0, 0, 0.35);
+  --card-overlay: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.88) 0%,
+    rgba(0, 0, 0, 0.25) 50%,
+    transparent 100%
+  );
+}
+
+.light {
+  --surface: #f5f5f7;
+  --elevated: #ffffff;
+  --elevated-60: rgba(255, 255, 255, 0.8);
+  --elevated-40: rgba(255, 255, 255, 0.6);
+  --button: #e5e7eb;
+  --primary: #1a1a1a;
+  --secondary: #4b5563;
+  --tertiary: #6b7280;
+  --quaternary: #9ca3af;
+  --border: #e5e7eb;
+  --border-strong: #d1d5db;
+  --border-stronger: #9ca3af;
+  --border-strongest: #6b7280;
+  --overlay: rgba(0, 0, 0, 0.2);
+  --logo-border: #ffffff;
+  --body-bg: #f5f5f7;
+  --alert-error-bg: #fef2f2;
+  --alert-error-border: #fca5a5;
+  --alert-error-text: #991b1b;
+  --alert-success-bg: #f0fdf4;
+  --alert-success-border: #86efac;
+  --alert-success-text: #166534;
+  --modal-overlay: rgba(0, 0, 0, 0.3);
+  --accent: #059669;
+  --card-radius: 1rem;
+  --card-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.08);
+  --card-shadow-hover: 0 12px 40px -8px rgba(0, 0, 0, 0.12);
+  --card-overlay: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.75) 0%,
+    rgba(0, 0, 0, 0.1) 50%,
+    transparent 100%
+  );
+}
+
+.loading-screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--body-bg);
+  z-index: 9999;
+  transition: opacity 0.5s ease-out;
+}
+
+.loading-screen.hidden {
+  opacity: 0;
+  pointer-events: none;
+  visibility: hidden;
+  transition:
+    opacity 0.5s ease-out,
+    visibility 0s 0.5s;
+}
+
+.splash-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  animation: splashFadeInUp 0.8s ease-out both;
+}
+
+.splash-logo {
+  width: 128px;
+  height: 128px;
+  border-radius: 9999px;
+  animation: splashPulse 2s ease-in-out infinite;
+}
+
+.splash-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--primary);
+  letter-spacing: -0.01em;
+}
+
+.splash-spinner {
+  width: 24px;
+  height: 24px;
+  border-width: 2.5px;
+}
+
+.loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--border-strong);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes splashFadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes splashPulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.04);
+    opacity: 0.85;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+img.logo-img {
+  border-radius: 9999px;
+}
+
+/* PWA Mobile-First Optimizations */
+.aspect-cover-card {
+  aspect-ratio: 16 / 5;
+}
+
+.aspect-cover-profile {
+  aspect-ratio: 16 / 7;
+}
+
+@media (max-width: 640px) {
+  .pb-safe-bottom {
+    padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+.contain-layout {
+  contain: layout style;
+}
+
+/* Skeleton shimmer effect */
+.skeleton-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton-shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.04) 40%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.04) 60%,
+    transparent 100%
+  );
+  transform: translateX(-100%);
+  animation: shimmer 1.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.light .skeleton-shimmer::after {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(0, 0, 0, 0.03) 40%,
+    rgba(0, 0, 0, 0.06) 50%,
+    rgba(0, 0, 0, 0.03) 60%,
+    transparent 100%
+  );
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-shimmer::after {
+    animation: none;
+  }
+
+  .splash-content,
+  .splash-logo,
+  .loading-spinner {
+    animation: none;
+  }
+}
+
+/* Card de la cartelera de CV. Estaba definida byte a byte en dos <style> de
+   página (busqueda-laboral.astro e index.astro), que es el mismo bloque
+   duplicado en la home y en la página de CV. Vive acá con las demás clases
+   compartidas. */
+.cv-card {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  border-radius: 1.25rem;
+  border: 1px solid var(--border-strong);
+  background: linear-gradient(180deg, #f59e0b1a, transparent 120px), var(--elevated);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+/* La botonera queda al fondo para que las cards de la misma fila midan igual. */
+.cv-card > div.mt-3.flex.gap-2:last-child {
+  margin-top: auto;
+  padding-top: 0.75rem;
+}
+.cv-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+}
+
+/* Scroll reveal animation */
+.reveal {
+  opacity: 0;
+  transform: translateY(12px);
+  transition:
+    opacity 0.4s ease-out,
+    transform 0.4s ease-out;
+}
+
+.reveal.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* Native View Transitions */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 200ms;
+  animation-timing-function: ease-in-out;
+}
+
+::view-transition-old(root) {
+  animation-name: fade-out;
+}
+
+::view-transition-new(root) {
+  animation-name: fade-in;
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+}

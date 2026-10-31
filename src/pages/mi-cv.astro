@@ -1,0 +1,764 @@
+---
+import Layout from '../layouts/Layout.astro'
+import Footer from '../components/Footer.astro'
+import BottomNav from '../components/BottomNav.astro'
+import BackButton from '../components/BackButton.astro'
+import { CATEGORIAS } from '../utils/constants'
+import CiudadAutocomplete from '../components/CiudadAutocomplete.astro'
+---
+
+<Layout
+  title="Mi CV | Búsqueda Laboral"
+  description="Creá y gestioná tu CV para que te encuentren comercios de tu localidad."
+>
+  <main class="max-w-2xl mx-auto px-4 sm:px-6 pt-8 pb-12 flex flex-col min-h-dvh justify-between">
+    <div class="loading-screen" id="loading-screen">
+      <div class="splash-content">
+        <img src="/logo.webp" alt="Búsqueda Laboral" class="splash-logo" />
+        <h1 class="splash-title">Búsqueda Laboral</h1>
+        <div class="loading-spinner splash-spinner"></div>
+      </div>
+    </div>
+
+    <div class="w-full hidden" id="contenido-cv">
+      <div class="pb-4 mb-6">
+        <div class="flex items-center justify-between gap-3">
+          <div class="min-w-0">
+            <h1 class="text-2xl font-bold tracking-wide" style="color: var(--primary)">
+              Mi CV
+            </h1>
+            <p class="text-xs mt-1" style="color: var(--tertiary)">
+              Búsqueda Laboral — conectá con comercios de tu localidad.
+            </p>
+          </div>
+          <BackButton href="/" label="Ver la cartelera" />
+        </div>
+        <div class="w-16 h-0.5 rounded-full bg-amber-500/40 mt-2"></div>
+      </div>
+
+      <div class="flex gap-2 mb-5" role="tablist">
+        <button
+          id="tab-micv"
+          type="button"
+          class="flex-1 py-2.5 min-h-[44px] rounded-xl text-xs font-bold transition-colors cursor-pointer touch-manipulation"
+          style="background: #f59e0b; color: #ffffff"
+        >
+          Mi CV
+        </button>
+        <button
+          id="tab-ejemplo"
+          type="button"
+          class="flex-1 py-2.5 min-h-[44px] rounded-xl text-xs font-bold transition-colors cursor-pointer touch-manipulation"
+          style="background: var(--elevated); color: var(--tertiary); border: 1px solid var(--border-strong)"
+        >
+          Ver ejemplo
+        </button>
+      </div>
+
+      <div id="pestana-micv">
+        <div
+          id="alerta-success"
+          class="hidden mb-4 p-4 rounded-2xl border text-sm font-semibold"
+          style="background: rgba(16, 185, 129, 0.12); border-color: rgba(16, 185, 129, 0.35); color: #10b981"
+        >
+          <span id="alerta-success-texto">¡CV guardado!</span>
+        </div>
+        <div
+          id="alerta-error"
+          class="hidden mb-4 p-4 rounded-2xl border text-sm font-semibold"
+          style="background: rgba(220, 38, 38, 0.12); border-color: rgba(220, 38, 38, 0.35); color: #ef4444"
+        >
+          <span id="alerta-error-texto">Ocurrió un error.</span>
+        </div>
+
+        <div class="p-5 sm:p-6 rounded-3xl" style="background: var(--elevated)">
+          <p class="text-xs mb-5 leading-relaxed" style="color: var(--tertiary)">
+            Publicá tu CV para que los comercios de tu localidad te encuentren. Al conseguir
+            trabajo, lo sacás de la cartelera.
+          </p>
+
+          <div
+            id="cv-sin-datos"
+            class="text-center py-8 px-4 rounded-2xl"
+            style="background: var(--surface)"
+          >
+            <span class="text-4xl block mb-3" aria-hidden="true">
+              🧑‍💼
+            </span>
+            <p class="text-sm font-semibold mb-4" style="color: var(--primary)">
+              Todavía no publicaste tu CV.
+            </p>
+            <button
+              id="btn-crear-cv"
+              type="button"
+              class="px-6 py-3 rounded-2xl text-sm font-bold transition-all active:scale-[0.99] cursor-pointer touch-manipulation"
+              style="background: #f59e0b; color: #ffffff"
+            >
+              Crear mi CV
+            </button>
+          </div>
+
+          <div id="cv-preview" class="hidden">
+            <div class="flex gap-2 mb-3" data-formato-control>
+              <button
+                type="button"
+                data-formato="clasico"
+                class="flex-1 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer touch-manipulation"
+              >
+                Clásico
+              </button>
+              <button
+                type="button"
+                data-formato="moderno"
+                class="flex-1 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer touch-manipulation"
+              >
+                Moderno
+              </button>
+              <button
+                type="button"
+                data-formato="compacto"
+                class="flex-1 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer touch-manipulation"
+              >
+                Compacto
+              </button>
+            </div>
+            <div
+              id="cv-preview-card"
+              class="p-5 rounded-3xl mb-4"
+              style="background: var(--surface); border: 1px solid var(--border-strong)"
+            ></div>
+            <div
+              id="cv-oculto-aviso"
+              class="hidden p-4 rounded-2xl mb-4 text-sm"
+              style="background: #f59e0b10; border: 1px solid #f59e0b30; color: #92400e"
+            >
+              <p class="font-semibold">Tu CV está oculto</p>
+              <p class="mt-1">
+                No aparece en la cartelera pero lo tenés guardado. Si volvés a buscar trabajo,
+                publicalo de nuevo.
+              </p>
+            </div>
+            <button
+              id="btn-toggle-cv"
+              type="button"
+              class="w-full py-3 rounded-2xl text-sm font-bold transition-all active:scale-[0.99] cursor-pointer touch-manipulation flex items-center justify-center gap-2"
+              style="background: #f59e0b; color: #ffffff"
+            >
+              <svg
+                class="w-4 h-4 shrink-0"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                ></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+              <span id="texto-toggle-cv">Quitar de la cartelera</span>
+            </button>
+            <div class="flex gap-3 mt-3">
+              <button
+                id="btn-editar-cv"
+                type="button"
+                class="flex-1 py-3 rounded-2xl text-sm font-bold transition-all cursor-pointer touch-manipulation flex items-center justify-center gap-2"
+                style="background: var(--elevated); color: var(--secondary); border: 1px solid var(--border-strong)"
+              >
+                <svg
+                  class="w-4 h-4 shrink-0"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"
+                  ></path>
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"
+                  ></path>
+                </svg>
+                Editar
+              </button>
+              <button
+                id="btn-eliminar-cv"
+                type="button"
+                class="flex-1 py-3 rounded-2xl text-sm font-bold transition-all cursor-pointer touch-manipulation flex items-center justify-center gap-2"
+                style="background: var(--elevated); color: #ef4444; border: 1px solid var(--border-strong)"
+              >
+                <svg
+                  class="w-4 h-4 shrink-0"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path>
+                </svg>
+                Eliminar
+              </button>
+            </div>
+            <div class="flex gap-3 mt-3">
+              <button
+                id="btn-compartir-cv"
+                type="button"
+                class="flex-1 py-3 rounded-2xl text-sm font-bold transition-all active:scale-[0.99] cursor-pointer touch-manipulation flex items-center justify-center gap-2"
+                style="background: var(--elevated); color: var(--secondary); border: 1px solid var(--border-strong)"
+              >
+                <svg
+                  class="w-4 h-4 shrink-0"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <circle cx="18" cy="5" r="3"></circle>
+                  <circle cx="6" cy="12" r="3"></circle>
+                  <circle cx="18" cy="19" r="3"></circle>
+                  <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                  <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+                </svg>
+                Compartir
+              </button>
+              <button
+                id="btn-descargar-cv"
+                type="button"
+                class="flex-1 py-3 rounded-2xl text-sm font-bold transition-all active:scale-[0.99] cursor-pointer touch-manipulation flex items-center justify-center gap-2"
+                style="background: var(--elevated); color: var(--primary); border: 1px solid var(--border-strong)"
+              >
+                <span
+                  id="spinner-pdf"
+                  class="hidden w-4 h-4 border-2 border-t-transparent rounded-full animate-spin"
+                  style="border-color: var(--primary); border-top-color: transparent"
+                ></span>
+                <svg
+                  class="w-4 h-4 shrink-0"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                <span id="texto-pdf">Descargar PDF</span>
+              </button>
+            </div>
+          </div>
+
+          <form
+            id="form-cv"
+            class="hidden space-y-4 p-4 rounded-2xl"
+            style="background: var(--surface)"
+          >
+            <p id="form-cv-titulo" class="text-xs font-bold" style="color: var(--secondary)">
+              Nuevo CV:
+            </p>
+
+            <div>
+              <label
+                for="cv-nombre"
+                class="block text-xs font-bold mb-1.5"
+                style="color: var(--secondary)"
+              >
+                Nombre completo *
+              </label>
+              <input
+                id="cv-nombre"
+                type="text"
+                maxlength="80"
+                placeholder="Ej: Juan López"
+                class="w-full px-4 py-3 rounded-2xl text-sm focus:outline-none focus:border-emerald-500 transition-colors"
+                style="background: var(--surface); color: var(--primary); border: 1px solid var(--border-strong)"
+              />
+            </div>
+
+            <div>
+              <label
+                for="cv-ciudad-input"
+                class="block text-xs font-bold mb-1.5"
+                style="color: var(--secondary)"
+              >
+                Ciudad o localidad *
+              </label>
+              <CiudadAutocomplete
+                inputId="cv-ciudad-input"
+                hiddenName="cv-ciudad"
+                placeholder="Busca tu localidad..."
+              />
+            </div>
+
+            <div>
+              <label
+                for="cv-rubro"
+                class="block text-xs font-bold mb-1.5"
+                style="color: var(--secondary)"
+              >
+                Conocimientos (opcional — recomendable)
+              </label>
+              <select
+                id="cv-rubro"
+                class="w-full px-4 py-3 rounded-2xl text-sm focus:outline-none appearance-none"
+                style="background: var(--surface); color: var(--primary); border: 1px solid var(--border-strong)"
+              >
+                <option value="">Elegí tus conocimientos (opcional — recomendable)</option>
+                {CATEGORIAS.map((cat) => (
+                  <option value={cat.value}>{cat.label}</option>
+                ))}
+              </select>
+              <p class="text-[10px] mt-1" style="color: var(--tertiary)">
+                No se muestra en tu CV. Lo usamos solo para conectarte con comercios (filtro de la
+                cartelera y match futuro).
+              </p>
+            </div>
+
+            <div>
+              <label
+                for="cv-sobre-mi"
+                class="block text-xs font-bold mb-1.5"
+                style="color: var(--secondary)"
+              >
+                Sobre mí (opcional)
+              </label>
+              <textarea
+                id="cv-sobre-mi"
+                rows="3"
+                maxlength="300"
+                placeholder="Ej: Soy una persona proactiva con buena predisposición a trabajar en equipo."
+                class="w-full px-4 py-3 rounded-2xl text-sm focus:outline-none focus:border-emerald-500 transition-colors resize-none"
+                style="background: var(--surface); color: var(--primary); border: 1px solid var(--border-strong)"
+              ></textarea>
+              <p
+                id="cv-sobre-mi-contador"
+                class="text-[10px] mt-1.5 text-right"
+                style="color: var(--tertiary)"
+                aria-live="off"
+              >
+                0/300
+              </p>
+            </div>
+
+            <div>
+              <label
+                for="cv-habilidades"
+                class="block text-xs font-bold mb-1.5"
+                style="color: var(--secondary)"
+              >
+                Habilidades (opcional)
+              </label>
+              <textarea
+                id="cv-habilidades"
+                rows="2"
+                maxlength="300"
+                placeholder="Ej: manejo de caja, atención al cliente, cocina..."
+                class="w-full px-4 py-3 rounded-2xl text-sm focus:outline-none focus:border-emerald-500 transition-colors resize-none"
+                style="background: var(--surface); color: var(--primary); border: 1px solid var(--border-strong)"
+              ></textarea>
+            </div>
+
+            <div>
+              <label
+                for="cv-experiencia"
+                class="block text-xs font-bold mb-1.5"
+                style="color: var(--secondary)"
+              >
+                Experiencia (opcional)
+              </label>
+              <textarea
+                id="cv-experiencia"
+                rows="2"
+                maxlength="300"
+                placeholder="Ej: 2 años en gastronomía..."
+                class="w-full px-4 py-3 rounded-2xl text-sm focus:outline-none focus:border-emerald-500 transition-colors resize-none"
+                style="background: var(--surface); color: var(--primary); border: 1px solid var(--border-strong)"
+              ></textarea>
+            </div>
+
+            <div>
+              <label
+                for="cv-disponibilidad"
+                class="block text-xs font-bold mb-1.5"
+                style="color: var(--secondary)"
+              >
+                Disponibilidad (opcional)
+              </label>
+              <input
+                id="cv-disponibilidad"
+                type="text"
+                maxlength="60"
+                placeholder="Ej: full time, fines de semana, mañanas"
+                class="w-full px-4 py-3 rounded-2xl text-sm focus:outline-none focus:border-emerald-500 transition-colors"
+                style="background: var(--surface); color: var(--primary); border: 1px solid var(--border-strong)"
+              />
+            </div>
+
+            <div>
+              <label
+                for="cv-whatsapp"
+                class="block text-xs font-bold mb-1.5"
+                style="color: var(--secondary)"
+              >
+                WhatsApp de contacto *
+              </label>
+              <input
+                id="cv-whatsapp"
+                type="tel"
+                inputmode="numeric"
+                maxlength="20"
+                placeholder="Ej: 5491155555555"
+                class="w-full px-4 py-3 rounded-2xl text-sm focus:outline-none focus:border-emerald-500 transition-colors"
+                style="background: var(--surface); color: var(--primary); border: 1px solid var(--border-strong)"
+              />
+            </div>
+
+            <div>
+              <label
+                for="cv-email"
+                class="block text-xs font-bold mb-1.5"
+                style="color: var(--secondary)"
+              >
+                Email (opcional)
+              </label>
+              <input
+                id="cv-email"
+                type="email"
+                maxlength="80"
+                placeholder="Ej: juan@gmail.com"
+                class="w-full px-4 py-3 rounded-2xl text-sm focus:outline-none focus:border-emerald-500 transition-colors"
+                style="background: var(--surface); color: var(--primary); border: 1px solid var(--border-strong)"
+              />
+            </div>
+
+            <div>
+              <label
+                for="cv-direccion"
+                class="block text-xs font-bold mb-1.5"
+                style="color: var(--secondary)"
+              >
+                Dirección (opcional)
+              </label>
+              <input
+                id="cv-direccion"
+                type="text"
+                maxlength="100"
+                placeholder="Ej: Av. Principal 1234"
+                class="w-full px-4 py-3 rounded-2xl text-sm focus:outline-none focus:border-emerald-500 transition-colors"
+                style="background: var(--surface); color: var(--primary); border: 1px solid var(--border-strong)"
+              />
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label
+                  for="cv-nivel-estudios"
+                  class="block text-xs font-bold mb-1.5"
+                  style="color: var(--secondary)"
+                >
+                  Nivel de estudios (opcional)
+                </label>
+                <select
+                  id="cv-nivel-estudios"
+                  class="w-full px-4 py-3 rounded-2xl text-sm focus:outline-none appearance-none"
+                  style="background: var(--surface); color: var(--primary); border: 1px solid var(--border-strong)"
+                >
+                  <option value="">Elegí</option>
+                  <option value="Secundario incompleto">Secundario incompleto</option>
+                  <option value="Secundario completo">Secundario completo</option>
+                  <option value="Terciario en curso">Terciario en curso</option>
+                  <option value="Terciario completo">Terciario completo</option>
+                  <option value="Universitario en curso">Universitario en curso</option>
+                  <option value="Universitario completo">Universitario completo</option>
+                </select>
+              </div>
+              <div>
+                <label
+                  for="cv-movilidad"
+                  class="block text-xs font-bold mb-1.5"
+                  style="color: var(--secondary)"
+                >
+                  Movilidad propia (opcional)
+                </label>
+                <select
+                  id="cv-movilidad"
+                  class="w-full px-4 py-3 rounded-2xl text-sm focus:outline-none appearance-none"
+                  style="background: var(--surface); color: var(--primary); border: 1px solid var(--border-strong)"
+                >
+                  <option value="">Elegí</option>
+                  <option value="No">No</option>
+                  <option value="Bicicleta">Bicicleta</option>
+                  <option value="Moto">Moto</option>
+                  <option value="Auto">Auto</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label
+                for="cv-idiomas"
+                class="block text-xs font-bold mb-1.5"
+                style="color: var(--secondary)"
+              >
+                Idiomas (opcional)
+              </label>
+              <input
+                id="cv-idiomas"
+                type="text"
+                maxlength="80"
+                placeholder="Ej: Inglés intermedio, Portugués básico"
+                class="w-full px-4 py-3 rounded-2xl text-sm focus:outline-none focus:border-emerald-500 transition-colors"
+                style="background: var(--surface); color: var(--primary); border: 1px solid var(--border-strong)"
+              />
+            </div>
+
+            <div>
+              <p class="text-xs font-bold mb-1.5" style="color: var(--secondary)">
+                Foto (opcional)
+              </p>
+              <input id="cv-foto" type="file" accept="image/*" class="hidden" />
+              <button
+                type="button"
+                id="btn-cv-foto"
+                class="w-full py-3 rounded-2xl text-xs font-bold transition-all active:scale-[0.99] cursor-pointer touch-manipulation"
+                style="background: var(--elevated); color: var(--secondary); border: 1px dashed var(--border-strong)"
+              >
+                Subir foto
+              </button>
+              <div id="cv-foto-preview" class="hidden mt-3 flex items-center gap-4">
+                <div
+                  id="cv-foto-encuadre"
+                  class="w-24 h-24 rounded-full overflow-hidden shrink-0 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-[#f59e0b]"
+                  style="border: 2px solid var(--border-strong); cursor: grab"
+                >
+                  <img
+                    id="cv-foto-img"
+                    tabindex="0"
+                    class="w-full h-full object-cover focus:outline-none"
+                    alt="Foto del CV. Arrastrá o usá las flechas del teclado para elegir el encuadre."
+                  />
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p
+                    id="cv-foto-encuadre-ayuda"
+                    class="text-[10px] leading-relaxed"
+                    style="color: var(--tertiary)"
+                  >
+                    Arrastrá la foto para elegir cómo queda el encuadre.
+                  </p>
+                  <div class="flex flex-wrap items-center gap-x-4 gap-y-2 mt-2">
+                    <button
+                      type="button"
+                      id="btn-cv-foto-centrar"
+                      class="text-xs font-bold underline cursor-pointer"
+                      style="color: var(--secondary)"
+                    >
+                      Centrar
+                    </button>
+                    <button
+                      type="button"
+                      id="btn-cv-foto-quitar"
+                      class="text-xs font-bold underline cursor-pointer"
+                      style="color: #ef4444"
+                    >
+                      Quitar foto
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <p id="cv-foto-encuadre-aviso" class="sr-only" role="status" aria-live="polite"></p>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold mb-1.5" style="color: var(--secondary)">
+                Plantilla del CV
+              </label>
+              <div class="flex gap-2" data-formato-control>
+                <button
+                  type="button"
+                  data-formato="clasico"
+                  class="flex-1 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer touch-manipulation"
+                >
+                  Clásico
+                </button>
+                <button
+                  type="button"
+                  data-formato="moderno"
+                  class="flex-1 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer touch-manipulation"
+                >
+                  Moderno
+                </button>
+                <button
+                  type="button"
+                  data-formato="compacto"
+                  class="flex-1 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer touch-manipulation"
+                >
+                  Compacto
+                </button>
+              </div>
+              <p class="text-[10px] mt-1" style="color: var(--tertiary)">
+                Cambia cómo se ve tu CV cuando alguien lo abre. Aplica también al PDF.
+              </p>
+            </div>
+
+            <div class="flex gap-3 pt-2">
+              <button
+                type="submit"
+                class="flex-1 py-3 rounded-2xl text-sm font-bold transition-all active:scale-[0.99] cursor-pointer touch-manipulation"
+                style="background: #f59e0b; color: #ffffff"
+              >
+                Guardar CV
+              </button>
+              <button
+                type="button"
+                id="btn-cancelar-cv"
+                class="px-5 py-3 rounded-2xl text-sm font-bold transition-all cursor-pointer touch-manipulation"
+                style="background: var(--elevated); color: var(--secondary); border: 1px solid var(--border-strong)"
+              >
+                Cancelar
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div id="pestana-ejemplo" class="hidden">
+        <div
+          class="p-5 rounded-3xl"
+          style="background: var(--elevated); border: 1px solid var(--border-strong)"
+        >
+          <p class="text-xs mb-4 leading-relaxed" style="color: var(--tertiary)">
+            Este es un ejemplo de cómo podés armar tu CV. Usalo como guía, no como modelo rígido: lo
+            importante es que se vea claro, sea honesto y cuente qué sabés hacer. El tuyo se muestra
+            igual en la cartelera.
+          </p>
+          <div
+            class="p-5 rounded-3xl"
+            style="background: linear-gradient(180deg, #f59e0b1a, transparent 120px), var(--surface); border: 1px solid var(--border-strong)"
+          >
+            <div class="flex flex-col items-center text-center">
+              <div class="rounded-full p-0.5 shrink-0" style="border: 2px solid #f59e0b">
+                <div
+                  class="w-14 h-14 rounded-full flex items-center justify-center text-2xl"
+                  style="background: #f59e0b; color: #1f2937"
+                >
+                  👨‍🍳
+                </div>
+              </div>
+              <h3 class="mt-2 text-base font-bold truncate w-full" style="color: var(--primary)">
+                Juan López
+              </h3>
+            </div>
+            <div class="mt-2.5 flex flex-wrap justify-center gap-1.5">
+              <span
+                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-medium max-w-full"
+                style="background: var(--elevated); color: var(--secondary)"
+              >
+                📍<span class="truncate min-w-0">Córdoba Capital</span>
+              </span>
+              <span
+                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[11px] font-medium max-w-full"
+                style="background: var(--elevated); color: var(--secondary)"
+              >
+                📧<span class="truncate min-w-0">juan.lopez@email.com</span>
+              </span>
+            </div>
+            <div class="mt-2 rounded-xl overflow-hidden" style="background: var(--elevated)">
+              <p
+                class="px-3 py-1 text-[10px] uppercase font-bold tracking-wider truncate"
+                style="color: #92400e; background: #f59e0b1a"
+              >
+                Sobre mí
+              </p>
+              <p
+                class="px-3 py-2 text-sm leading-relaxed line-clamp-3"
+                style="color: var(--secondary)"
+              >
+                Soy una persona proactiva, con buena predisposición y ganas de aprender. Busco
+                crecer en gastronomía.
+              </p>
+            </div>
+            <div class="mt-2 rounded-xl overflow-hidden" style="background: var(--elevated)">
+              <p
+                class="px-3 py-1 text-[10px] uppercase font-bold tracking-wider truncate"
+                style="color: #92400e; background: #f59e0b1a"
+              >
+                Habilidades
+              </p>
+              <p
+                class="px-3 py-2 text-sm leading-relaxed line-clamp-3"
+                style="color: var(--secondary)"
+              >
+                Cocina regional y pastelería casera. Manejo de caja, atención al cliente y trabajo
+                en equipo en cocina.
+              </p>
+            </div>
+            <div class="mt-2 rounded-xl overflow-hidden" style="background: var(--elevated)">
+              <p
+                class="px-3 py-1 text-[10px] uppercase font-bold tracking-wider truncate"
+                style="color: #92400e; background: #f59e0b1a"
+              >
+                Experiencia
+              </p>
+              <p
+                class="px-3 py-2 text-sm leading-relaxed line-clamp-3"
+                style="color: var(--secondary)"
+              >
+                Más de 5 años cocinando para eventos y en un local gastronómico, entre salón y
+                cocina.
+              </p>
+            </div>
+            <div class="mt-2 rounded-xl overflow-hidden" style="background: var(--elevated)">
+              <p
+                class="px-3 py-1 text-[10px] uppercase font-bold tracking-wider truncate"
+                style="color: #92400e; background: #f59e0b1a"
+              >
+                Disponibilidad
+              </p>
+              <p
+                class="px-3 py-2 text-sm leading-relaxed line-clamp-3"
+                style="color: var(--secondary)"
+              >
+                Lunes a viernes por la mañana. Fines de semana para eventos.
+              </p>
+            </div>
+            <div
+              class="mt-4 flex items-center justify-center gap-2 px-4 py-2.5 min-h-[44px] rounded-xl text-xs font-bold"
+              style="background: #25d366; color: #ffffff"
+            >
+              Contactar por WhatsApp
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <Footer />
+  </main>
+
+  <BottomNav activePage="laboral" />
+
+  <div
+    id="toast-mi-cv"
+    class="hidden fixed bottom-24 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-2xl text-xs font-semibold shadow-lg transition-opacity duration-300"
+    style="background: var(--elevated); border: 1px solid var(--border-strong); color: var(--primary)"
+  ></div>
+</Layout>
+
+<script>
+  import { iniciarPanelMiCv } from '../scripts/mi-cv/panel'
+
+  void iniciarPanelMiCv()
+</script>

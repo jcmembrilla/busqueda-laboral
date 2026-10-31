@@ -1,0 +1,254 @@
+---
+---
+
+<div
+  id="install-modal"
+  class="hidden fixed inset-0 z-50 flex items-center justify-center p-6"
+  style="background: rgba(0, 0, 0, 0.65)"
+>
+  <div
+    class="w-full max-w-sm p-6 rounded-3xl shadow-2xl text-center transition-all duration-300 scale-95 opacity-0"
+    style="background: var(--surface); border: 1px solid var(--border-strong)"
+    id="install-modal-card"
+  >
+    <div class="flex items-start justify-between gap-4">
+      <div class="flex-1"></div>
+      <button
+        id="btn-cerrar-install"
+        class="w-10 h-10 min-h-[40px] min-w-[40px] flex items-center justify-center rounded-full transition-colors active:scale-95 touch-manipulation"
+        style="background: var(--elevated); color: var(--secondary)"
+        aria-label="Cerrar"
+      >
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"
+          ></path>
+        </svg>
+      </button>
+    </div>
+
+    <img
+      src="/logo.webp"
+      alt="Búsqueda Laboral"
+      class="w-20 h-20 mx-auto mb-4 rounded-full"
+      decoding="async"
+    />
+    <h2 class="text-lg font-bold mb-1" style="color: var(--primary)">
+      Instalá Búsqueda Laboral
+    </h2>
+    <p class="text-xs leading-relaxed mb-5" style="color: var(--tertiary)">
+      Más rápida, funciona sin conexión y con acceso directo desde tu pantalla. Sin pasar por
+      ninguna tienda.
+    </p>
+
+    <!-- Android / Chrome / Edge: diálogo nativo -->
+    <div id="inst-modal-nativo" class="hidden">
+      <button
+        id="btn-instalar-modal"
+        class="w-full py-3 min-h-[48px] rounded-xl text-sm font-bold transition-all active:scale-[0.97] cursor-pointer touch-manipulation"
+        style="background: var(--primary); color: var(--surface)"
+      >
+        <svg
+          class="w-4 h-4 inline-block mr-2 -mt-0.5"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+          aria-hidden="true"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"
+          ></path>
+        </svg>
+        Instalar ahora
+      </button>
+    </div>
+
+    <!-- iOS: pasos visuales -->
+    <div id="inst-modal-ios" class="hidden text-left">
+      <div class="space-y-2.5">
+        <div class="flex items-center gap-3">
+          <span
+            class="w-6 h-6 rounded-lg flex items-center justify-center shrink-0 text-[10px] font-bold"
+            style="background: var(--elevated); color: var(--primary); border: 1px solid var(--border-strong)"
+          >
+            1
+          </span>
+          <svg
+            class="w-4 h-4 shrink-0"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            style="color: var(--secondary)"
+          >
+            <path d="M16 5l-4-4-4 4 1.41 1.41L11 4.83V16h2V4.83l1.59 1.58L16 5zm4 4h-3v2h3v11H4V11h3V9H4a2 2 0 00-2 2v11a2 2 0 002 2h16a2 2 0 002-2V11a2 2 0 00-2-2z"></path>
+          </svg>
+          <p
+            id="inst-ios-paso1"
+            class="text-xs font-medium leading-snug"
+            style="color: var(--secondary)"
+          ></p>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <span
+            class="w-6 h-6 rounded-lg flex items-center justify-center shrink-0 text-[10px] font-bold"
+            style="background: var(--elevated); color: var(--primary); border: 1px solid var(--border-strong)"
+          >
+            2
+          </span>
+          <svg
+            class="w-4 h-4 shrink-0"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+            style="color: var(--secondary)"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M12 7v6m0 0l-2.5-2.5M12 13l2.5-2.5M5 16v1a2 2 0 002 2h10a2 2 0 002-2v-1M12 7V3.5"
+            ></path>
+          </svg>
+          <p class="text-xs font-medium leading-snug" style="color: var(--secondary)">
+            Elegí <strong style="color: var(--primary)">Agregar a pantalla de inicio</strong>.
+            Listo, la app queda instalada.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Desktop Firefox/Safari u otros: guía -->
+    <div id="inst-modal-guia" class="hidden">
+      <p class="text-xs leading-relaxed" style="color: var(--secondary)">
+        Tu navegador no permite instalar apps directamente. Probá abrir la web en Chrome o Edge para
+        instalar la app.
+      </p>
+    </div>
+
+    <a
+      href="/instalar"
+      class="block mt-5 text-xs font-semibold underline transition-colors hover:opacity-80 cursor-pointer touch-manipulation"
+      style="color: var(--secondary)"
+    >
+      Ver guía completa →
+    </a>
+
+    <button
+      id="btn-usar-en-navegador"
+      class="mt-2 text-xs font-semibold transition-colors cursor-pointer touch-manipulation"
+      style="color: var(--tertiary)"
+      type="button"
+    >
+      Usar desde el navegador
+    </button>
+  </div>
+</div>
+
+<div
+  id="install-toast"
+  class="hidden fixed bottom-24 sm:bottom-6 left-1/2 -translate-x-1/2 z-[60] px-5 py-3 rounded-2xl shadow-lg flex items-center gap-3 transition-opacity duration-300"
+  style="background: var(--elevated); border: 1px solid var(--border-strong); color: var(--primary)"
+>
+  <span class="text-xs font-semibold">🎉 ¡Búsqueda Laboral instalada!</span>
+</div>
+
+<script>
+  import {
+    detectarPlataforma,
+    detectarNavegador,
+    esStandalone,
+    puedeAutoMostrar,
+    registrarPromptInstalacion,
+    pedirInstalacion,
+    recordarDescartado,
+    textoPaso1Instalacion,
+  } from '../utils/install'
+
+  registrarPromptInstalacion()
+
+  const modal = document.getElementById('install-modal')
+  const card = document.getElementById('install-modal-card')
+  const btnCerrar = document.getElementById('btn-cerrar-install')
+  const seccionNativo = document.getElementById('inst-modal-nativo')
+  const seccionIos = document.getElementById('inst-modal-ios')
+  const seccionGuia = document.getElementById('inst-modal-guia')
+  const instIosPaso1 = document.getElementById('inst-ios-paso1')
+  const btnInstalar = document.getElementById('btn-instalar-modal')
+  const btnUsarWeb = document.getElementById('btn-usar-en-navegador')
+  const toast = document.getElementById('install-toast')
+
+  function abrirModal() {
+    if (!modal || esStandalone()) return
+
+    const plataforma = detectarPlataforma()
+    if (seccionNativo) seccionNativo.classList.add('hidden')
+    if (seccionIos) seccionIos.classList.add('hidden')
+    if (seccionGuia) seccionGuia.classList.add('hidden')
+
+    if (plataforma === 'ios') {
+      if (seccionIos) seccionIos.classList.remove('hidden')
+      if (instIosPaso1) {
+        instIosPaso1.innerHTML = textoPaso1Instalacion(detectarNavegador())
+      }
+    } else if (plataforma === 'desktop') {
+      if (seccionNativo) seccionNativo.classList.remove('hidden')
+    } else if (plataforma === 'android') {
+      if (seccionNativo) seccionNativo.classList.remove('hidden')
+    } else {
+      if (seccionGuia) seccionGuia.classList.remove('hidden')
+    }
+
+    modal.classList.remove('hidden')
+    requestAnimationFrame(() => {
+      card?.classList.remove('scale-95', 'opacity-0')
+    })
+  }
+
+  function cerrarModal() {
+    if (!modal) return
+    card?.classList.add('scale-95', 'opacity-0')
+    setTimeout(() => modal.classList.add('hidden'), 250)
+  }
+
+  if (!modal || !btnCerrar) {
+    // Modal no encontrado: no hacer nada.
+  } else {
+    window.addEventListener('mostrar-install', abrirModal)
+
+    if (puedeAutoMostrar()) {
+      const plataforma = detectarPlataforma()
+      if (plataforma === 'ios' || plataforma === 'android') {
+        setTimeout(abrirModal, 4000)
+      }
+    }
+
+    btnCerrar.addEventListener('click', () => {
+      recordarDescartado()
+      cerrarModal()
+    })
+
+    btnUsarWeb?.addEventListener('click', () => {
+      recordarDescartado()
+      cerrarModal()
+    })
+
+    btnInstalar?.addEventListener('click', () => {
+      void pedirInstalacion()
+      cerrarModal()
+    })
+
+    window.addEventListener('app-instalada', () => {
+      cerrarModal()
+      if (toast) {
+        toast.classList.remove('hidden')
+        setTimeout(() => toast.classList.add('hidden'), 3000)
+      }
+    })
+  }
+</script>

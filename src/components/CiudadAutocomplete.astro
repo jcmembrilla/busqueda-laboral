@@ -1,0 +1,220 @@
+---
+interface Props {
+  value?: string
+  name?: string
+  placeholder?: string
+  required?: boolean
+  inputId?: string
+  hiddenName?: string
+}
+
+const {
+  value = '',
+  name = 'ciudad',
+  placeholder = 'Busca tu localidad...',
+  required = false,
+  inputId = 'ciudad-input',
+  hiddenName = 'ciudad',
+} = Astro.props
+---
+
+<div class="ciudad-autocomplete-wrapper relative">
+  <input
+    type="text"
+    id={inputId}
+    class="ciudad-autocomplete-input w-full px-4 py-3 rounded-2xl text-sm focus:outline-none focus:border-emerald-500 transition-colors"
+    style="background: var(--surface); color: var(--primary); border: 1px solid var(--border-strong)"
+    placeholder={placeholder}
+    autocomplete="off"
+    role="combobox"
+    aria-expanded="false"
+    aria-haspopup="listbox"
+    aria-autocomplete="list"
+    value={value}
+  />
+  <input
+    type="hidden"
+    id={hiddenName}
+    class="ciudad-autocomplete-hidden"
+    name={name}
+    value={value}
+    required={required}
+  />
+  <ul
+    class="ciudad-sugerencias absolute left-0 right-0 z-50 mt-1 rounded-2xl overflow-hidden shadow-lg hidden"
+    role="listbox"
+    style="background: var(--elevated); border: 1px solid var(--border-strong)"
+  ></ul>
+</div>
+
+<script is:inline>
+  ;(function () {
+    const CIUDADES_API = '/api/ciudades?q='
+
+    document.querySelectorAll('.ciudad-autocomplete-wrapper').forEach(function (wrapper) {
+      const input = wrapper.querySelector('.ciudad-autocomplete-input')
+      const hidden = wrapper.querySelector('.ciudad-autocomplete-hidden')
+      const lista = wrapper.querySelector('.ciudad-sugerencias')
+      if (!input || !hidden || !lista) return
+
+      let timeoutId = null
+      let indiceSeleccionado = -1
+      let resultados = []
+
+      function cerrarSugerencias() {
+        lista.classList.add('hidden')
+        lista.innerHTML = ''
+        input.setAttribute('aria-expanded', 'false')
+        indiceSeleccionado = -1
+      }
+
+      function seleccionar(item) {
+        hidden.value = item.provincia ? item.nombre + ' (' + item.provincia + ')' : item.nombre
+        input.value = item.provincia ? item.nombre + ' (' + item.provincia + ')' : item.nombre
+        input.dataset.validada = '1'
+        cerrarSugerencias()
+      }
+
+      function renderizarSugerencias(items) {
+        resultados = items
+        lista.innerHTML = ''
+        indiceSeleccionado = -1
+
+        if (items.length === 0) {
+          lista.classList.add('hidden')
+          input.setAttribute('aria-expanded', 'false')
+          return
+        }
+
+        items.forEach(function (item) {
+          const li = document.createElement('li')
+          li.setAttribute('role', 'option')
+          li.setAttribute('aria-selected', 'false')
+          li.className =
+            'px-4 py-3 text-sm cursor-pointer flex items-center gap-2 transition-colors hover:bg-emerald-500/10'
+          li.style.color = 'var(--primary)'
+
+          const texto = document.createElement('span')
+          texto.textContent = item.provincia
+            ? item.nombre + ' (' + item.provincia + ')'
+            : item.nombre
+          li.appendChild(texto)
+
+          li.addEventListener('click', function () {
+            seleccionar(item)
+          })
+
+          lista.appendChild(li)
+        })
+
+        lista.classList.remove('hidden')
+        input.setAttribute('aria-expanded', 'true')
+      }
+
+      function buscar(query) {
+        if (query.length < 2) {
+          cerrarSugerencias()
+          return
+        }
+
+        fetch(CIUDADES_API + encodeURIComponent(query))
+          .then(function (res) {
+            if (!res.ok) throw new Error('Error en la respuesta')
+            return res.json()
+          })
+          .then(function (data) {
+            if (data && data.length > 0) {
+              renderizarSugerencias(data)
+            } else {
+              cerrarSugerencias()
+            }
+          })
+          .catch(function () {
+            cerrarSugerencias()
+          })
+      }
+
+      function mover(indice) {
+        const items = lista.querySelectorAll('li')
+        if (items.length === 0) return
+
+        if (indice >= 0 && indice < items.length) {
+          if (indiceSeleccionado >= 0 && items[indiceSeleccionado]) {
+            items[indiceSeleccionado].setAttribute('aria-selected', 'false')
+            items[indiceSeleccionado].classList.remove('bg-emerald-500/20', 'font-semibold')
+          }
+          indiceSeleccionado = indice
+          items[indiceSeleccionado].setAttribute('aria-selected', 'true')
+          items[indiceSeleccionado].classList.add('bg-emerald-500/20', 'font-semibold')
+          items[indiceSeleccionado].scrollIntoView({ block: 'nearest' })
+        }
+      }
+
+      input.addEventListener('input', function () {
+        const val = input.value.trim()
+        input.dataset.validada = ''
+        if (timeoutId) clearTimeout(timeoutId)
+
+        if (val.length < 2) {
+          cerrarSugerencias()
+          return
+        }
+
+        timeoutId = setTimeout(function () {
+          buscar(val)
+        }, 300)
+      })
+
+      input.addEventListener('focus', function () {
+        const val = input.value.trim()
+        if (val.length >= 2) {
+          buscar(val)
+        }
+      })
+
+      if (!window.__ciudadAutocompleteClickBound) {
+        window.__ciudadAutocompleteClickBound = true
+        document.addEventListener('click', function (e) {
+          document.querySelectorAll('.ciudad-autocomplete-wrapper').forEach(function (w) {
+            if (!w.contains(e.target)) {
+              const list = w.querySelector('.ciudad-sugerencias')
+              if (list) {
+                list.classList.add('hidden')
+                list.innerHTML = ''
+                const inp = w.querySelector('.ciudad-autocomplete-input')
+                if (inp) inp.setAttribute('aria-expanded', 'false')
+              }
+            }
+          })
+        })
+      }
+
+      input.addEventListener('keydown', function (e) {
+        const items = lista.querySelectorAll('li')
+
+        if (e.key === 'ArrowDown') {
+          e.preventDefault()
+          mover(indiceSeleccionado < items.length - 1 ? indiceSeleccionado + 1 : indiceSeleccionado)
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault()
+          mover(indiceSeleccionado > 0 ? indiceSeleccionado - 1 : 0)
+        } else if (e.key === 'Enter' || e.key === 'Tab') {
+          if (indiceSeleccionado >= 0 && indiceSeleccionado < resultados.length) {
+            e.preventDefault()
+            seleccionar(resultados[indiceSeleccionado])
+          }
+        } else if (e.key === 'Escape') {
+          cerrarSugerencias()
+        }
+      })
+
+      input.addEventListener('blur', function () {
+        setTimeout(function () {
+          if (!lista.classList.contains('hidden')) {
+            cerrarSugerencias()
+          }
+        }, 200)
+      })
+    })
+  })()
+</script>

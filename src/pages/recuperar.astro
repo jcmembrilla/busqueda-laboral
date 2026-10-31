@@ -1,0 +1,170 @@
+---
+import Layout from '../layouts/Layout.astro'
+import BackButton from '../components/BackButton.astro'
+import Footer from '../components/Footer.astro'
+import Alert from '../components/Alert.astro'
+---
+
+<Layout title="Búsqueda Laboral - Recuperar Contraseña">
+  <main class="max-w-md mx-auto px-6 pt-12 pb-12 flex flex-col min-h-dvh justify-between">
+    <div class="loading-screen" id="loading-screen">
+      <div class="splash-content">
+        <img src="/logo.webp" alt="Búsqueda Laboral" class="splash-logo" />
+        <h1 class="splash-title">Búsqueda Laboral</h1>
+        <div class="loading-spinner splash-spinner"></div>
+      </div>
+    </div>
+    <div class="w-full" id="recuperar-content">
+      <div class="pb-4 mb-8">
+        <div class="flex items-center justify-between">
+          <h1 class="text-2xl font-bold tracking-wide" style="color: var(--primary)">
+            Búsqueda Laboral
+          </h1>
+          <BackButton />
+        </div>
+        <div class="w-16 h-0.5 rounded-full bg-emerald-500/30 mt-2"></div>
+      </div>
+
+      <div
+        class="p-6 rounded-3xl border"
+        style="background: var(--elevated-60); border-color: var(--border-strongest)"
+      >
+        <Alert type="error" id="alerta-error" />
+
+        <div id="bloque-exito" class="hidden text-center py-6">
+          <div
+            class="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center"
+            style="background: rgba(16,185,129,0.15); border: 2px solid rgba(16,185,129,0.4)"
+          >
+            <svg
+              class="w-8 h-8 text-emerald-400"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2.5"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"></path>
+            </svg>
+          </div>
+          <h2 class="text-lg font-bold mb-2" style="color: var(--primary)">
+            📧 Revisá tu correo
+          </h2>
+          <p class="text-sm mb-1" style="color: var(--secondary)">
+            Te enviamos un link para restablecer tu contraseña.
+          </p>
+          <p class="text-xs" style="color: var(--tertiary)">
+            Si no lo encontrás, revisá la carpeta de spam.
+          </p>
+        </div>
+
+        <form id="form-recuperar" class="space-y-5">
+          <p class="text-xs leading-relaxed" style="color: var(--tertiary)">
+            Ingresá el correo electrónico que usaste al registrarte. Te enviaremos un link para
+            restablecer tu contraseña.
+          </p>
+
+          <div>
+            <label
+              for="email"
+              class="block text-xs font-semibold uppercase tracking-wider mb-2"
+              style="color: var(--tertiary)"
+            >
+              Correo Electrónico
+            </label>
+            <input
+              id="email"
+              type="email"
+              required
+              placeholder="tu@correo.com"
+              class="w-full px-4 py-3.5 rounded-2xl text-sm focus:outline-none focus:border-emerald-500 transition-colors"
+              style="background: var(--elevated); color: var(--primary); border: 1px solid var(--border-strong)"
+            />
+          </div>
+
+          <button
+            type="submit"
+            id="btn-enviar"
+            class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-3.5 rounded-2xl text-sm font-bold flex items-center justify-center gap-2 transition-colors active:scale-[0.99] cursor-pointer"
+          >
+            Enviar link de recuperación
+          </button>
+        </form>
+      </div>
+
+      <div class="mt-6 text-center text-sm" style="color: var(--tertiary)">
+        <a
+          href="/login"
+          class="text-emerald-400 font-semibold underline hover:text-emerald-300 transition-colors"
+        >
+          Volver al inicio de sesión
+        </a>
+      </div>
+    </div>
+
+    <Footer showLinks={false} />
+  </main>
+</Layout>
+
+<script>
+  import { supabase } from '../utils/supabase'
+  import { traducirError } from '../services/error.service'
+  import { mostrarError as mostrarErrorUI } from '../utils/ui'
+
+  const siteUrl = import.meta.env.PUBLIC_SITE_URL || 'http://localhost:4321'
+
+  const alertaError = document.getElementById('alerta-error') as HTMLDivElement
+  const alertaErrorTexto = document.getElementById('alerta-error-texto') as HTMLSpanElement
+  const form = document.getElementById('form-recuperar') as HTMLFormElement
+  const emailInput = document.getElementById('email') as HTMLInputElement
+  const btnEnviar = document.getElementById('btn-enviar') as HTMLButtonElement
+  const bloqueExito = document.getElementById('bloque-exito') as HTMLDivElement
+  const loadingScreen = document.getElementById('loading-screen') as HTMLDivElement
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
+  let isSubmitting = false
+
+  function mostrarError(msj: string) {
+    mostrarErrorUI(alertaError, alertaErrorTexto, msj)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault()
+    if (isSubmitting) return
+    isSubmitting = true
+
+    const email = emailInput.value.trim()
+
+    if (!email || !emailRegex.test(email)) {
+      mostrarError('Ingresá un correo electrónico válido.')
+      emailInput.focus()
+      isSubmitting = false
+      return
+    }
+
+    alertaError.classList.add('hidden')
+    loadingScreen.classList.remove('hidden')
+    btnEnviar.disabled = true
+    btnEnviar.textContent = 'Enviando...'
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${siteUrl}/auth/actualizar-contrasena`,
+      })
+
+      if (error) {
+        mostrarError(traducirError(error) || 'Error al enviar el correo.')
+      } else {
+        form.classList.add('hidden')
+        bloqueExito.classList.remove('hidden')
+      }
+    } catch {
+      mostrarError('Error de conexión al servidor.')
+    } finally {
+      loadingScreen.classList.add('hidden')
+      btnEnviar.disabled = false
+      btnEnviar.textContent = 'Enviar link de recuperación'
+      isSubmitting = false
+    }
+  })
+</script>

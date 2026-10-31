@@ -1,0 +1,155 @@
+---
+import '../styles/global.css'
+import InstallModal from '../components/InstallModal.astro'
+import InAppBrowserPrompt from '../components/InAppBrowserPrompt.astro'
+
+interface Props {
+  title: string
+  description?: string
+  ogTitle?: string
+  ogDescription?: string
+  ogImage?: string
+}
+
+const {
+  title,
+  description = 'Encontrá oportunidades laborales en tu zona y compartí tu CV.',
+  ogTitle: customOgTitle,
+  ogDescription: customOgDescription,
+  ogImage: customOgImage,
+} = Astro.props
+
+const siteUrl = import.meta.env.PUBLIC_SITE_URL || 'http://localhost:4321'
+const currentUrl = siteUrl + Astro.url.pathname
+
+const supabaseUrl: string | undefined = import.meta.env.PUBLIC_SUPABASE_URL
+const finalOgTitle = customOgTitle || title
+const finalOgDescription = customOgDescription || description
+const finalOgImage = customOgImage || siteUrl + '/logo.webp'
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'Búsqueda Laboral',
+  url: siteUrl,
+  description: 'Cartelera local de empleo y currículums.',
+  inLanguage: 'es',
+}
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content={description} />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <link rel="icon" type="image/webp" href="/logo.webp" />
+    <link rel="manifest" href="/manifest.json" />
+    {supabaseUrl && <link rel="preconnect" href={supabaseUrl} crossorigin />}
+    <meta name="theme-color" content="#34d399" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta property="og:title" content={finalOgTitle} />
+    <meta property="og:description" content={finalOgDescription} />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content={finalOgImage} />
+    <meta property="og:image:width" content="512" />
+    <meta property="og:image:height" content="512" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={finalOgTitle} />
+    <meta name="twitter:description" content={finalOgDescription} />
+    <meta name="twitter:image" content={finalOgImage} />
+    <link rel="canonical" href={currentUrl} />
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} is:inline />
+    <title>{title}</title>
+    <script>
+      ;(function () {
+        try {
+          const t = localStorage.getItem('bl_tema')
+          if (t !== 'dark') document.documentElement.classList.add('light')
+        } catch {
+          document.documentElement.classList.add('light')
+        }
+      })()
+    </script>
+  </head>
+  <body
+    class="min-h-dvh font-sans antialiased pb-safe-bottom"
+    style="background: var(--body-bg); color: var(--primary)"
+  >
+    <slot />
+
+    <div
+      id="sw-update-toast"
+      class="hidden fixed bottom-24 sm:bottom-6 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-2xl shadow-lg flex items-center gap-3 transition-opacity duration-300"
+      style="background: var(--elevated); border: 1px solid var(--border-strong); color: var(--primary)"
+    >
+      <span class="text-xs font-semibold">Hay una nueva versión de la app.</span>
+      <button
+        id="sw-update-btn"
+        class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 min-h-[48px] rounded-xl text-xs font-bold transition-colors touch-manipulation"
+      >
+        Actualizar
+      </button>
+    </div>
+
+    <InstallModal />
+    <InAppBrowserPrompt />
+  </body>
+</html>
+
+<script>
+  import { initTheme, initThemeToggle } from '../utils/theme'
+  import { supabase } from '../utils/supabase'
+  import { createIcons, MapPin, LogOut, MessageCircle, TriangleAlert, Check, Search } from 'lucide'
+
+  initTheme()
+  initThemeToggle()
+
+  supabase.auth.onAuthStateChange((event) => {
+    if (event === 'SIGNED_OUT') {
+      window.location.reload()
+    }
+  })
+
+  // En dev no registramos el SW: Vite sirve módulos sin hash y el
+  // stale-while-revalidate cachea versiones viejas que confunden el testeo.
+  if (!import.meta.env.DEV && 'serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js').then((reg) => {
+      reg.addEventListener('updatefound', () => {
+        const newWorker = reg.installing
+        if (newWorker) {
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              const toast = document.getElementById('sw-update-toast')
+              const btn = document.getElementById('sw-update-btn')
+              if (toast && btn) {
+                toast.classList.remove('hidden')
+                btn.addEventListener('click', () => {
+                  newWorker.postMessage({ type: 'SKIP_WAITING' })
+                  window.location.reload()
+                })
+              }
+            }
+          })
+        }
+      })
+    })
+  }
+
+  try {
+    createIcons({
+      icons: {
+        MapPin,
+        LogOut,
+        MessageCircle,
+        TriangleAlert,
+        Check,
+        Search,
+      },
+    })
+  } catch (e) {
+    console.warn('Error al crear iconos Lucide:', e)
+  }
+</script>

@@ -1,0 +1,168 @@
+---
+import Layout from '../layouts/Layout.astro'
+
+const registro = Astro.url.searchParams.get('registro') === 'cv'
+---
+
+<Layout
+  title="Ingresar o crear cuenta | Búsqueda Laboral"
+  description="Creá y compartí tu CV para encontrar oportunidades laborales en tu zona."
+>
+  <main class="mx-auto flex min-h-dvh max-w-md items-center px-4 py-10">
+    <section
+      class="w-full rounded-3xl p-6 sm:p-8"
+      style="background:var(--elevated);border:1px solid var(--border)"
+    >
+      <a href="/" class="text-sm font-semibold" style="color:#b87912">
+        ← Volver a la cartelera
+      </a>
+      <p class="mt-7 text-xs font-bold uppercase tracking-[0.16em]" style="color:#b87912">
+        Búsqueda Laboral
+      </p>
+      <h1 id="auth-title" class="mt-2 text-2xl font-bold">
+        {registro ? 'Creá tu cuenta' : 'Ingresá a tu cuenta'}
+      </h1>
+      <p id="auth-description" class="mt-2 text-sm" style="color:var(--secondary)">
+        {registro
+          ? 'Un paso más para crear y publicar tu CV.'
+          : 'Gestioná tu CV y mantené tus datos al día.'}
+      </p>
+
+      <div id="auth-message" class="mt-5 hidden rounded-xl p-3 text-sm" role="status"></div>
+      <form id="auth-form" class="mt-5 space-y-4" data-registro={registro ? 'true' : 'false'}>
+        <label class="block text-sm font-medium" for="email">
+          Correo electrónico
+        </label>
+        <input
+          id="email"
+          class="w-full rounded-xl border px-4 py-3"
+          style="background:var(--surface);border-color:var(--border-strong);color:var(--primary)"
+          type="email"
+          autocomplete="email"
+          required
+        />
+        <label class="block text-sm font-medium" for="password">
+          Contraseña
+        </label>
+        <input
+          id="password"
+          class="w-full rounded-xl border px-4 py-3"
+          style="background:var(--surface);border-color:var(--border-strong);color:var(--primary)"
+          type="password"
+          autocomplete={registro ? 'new-password' : 'current-password'}
+          minlength="8"
+          required
+        />
+        <p id="password-hint" class="hidden text-xs" style="color:var(--tertiary)">
+          Usá al menos 8 caracteres, con letras y números.
+        </p>
+        <button
+          id="auth-submit"
+          type="submit"
+          class="w-full rounded-xl px-4 py-3 font-bold text-white"
+          style="background:#b87912"
+        >
+          {registro ? 'Crear cuenta' : 'Iniciar sesión'}
+        </button>
+      </form>
+
+      <button
+        id="auth-toggle"
+        type="button"
+        class="mt-5 w-full py-2 text-sm font-semibold"
+        style="color:#b87912"
+      >
+        {registro ? 'Ya tengo cuenta: ingresar' : 'No tengo cuenta: registrarme'}
+      </button>
+      <a
+        id="forgot-password"
+        href="/recuperar"
+        class:list={['mt-2 block text-center text-sm underline', registro && 'hidden']}
+        style="color:var(--tertiary)"
+      >
+        ¿Olvidaste tu contraseña?
+      </a>
+    </section>
+  </main>
+</Layout>
+
+<script>
+  import { iniciarSesion, registrarCuenta } from '../services/auth.service'
+
+  const form = document.getElementById('auth-form') as HTMLFormElement
+  const emailInput = document.getElementById('email') as HTMLInputElement
+  const passwordInput = document.getElementById('password') as HTMLInputElement
+  const submit = document.getElementById('auth-submit') as HTMLButtonElement
+  const toggle = document.getElementById('auth-toggle') as HTMLButtonElement
+  const hint = document.getElementById('password-hint')
+  const forgot = document.getElementById('forgot-password')
+  const title = document.getElementById('auth-title')
+  const description = document.getElementById('auth-description')
+  const message = document.getElementById('auth-message')
+
+  // El modo inicial lo marca el server con data-registro (viene de ?registro=cv).
+  let isRegister = form.dataset.registro === 'true'
+
+  function showMessage(text: string, isError = false) {
+    if (!message) return
+    message.textContent = text
+    message.classList.remove('hidden')
+    message.style.background = isError ? 'var(--alert-error-bg)' : 'var(--alert-success-bg)'
+    message.style.color = isError ? 'var(--alert-error-text)' : 'var(--alert-success-text)'
+  }
+
+  function paintMode() {
+    if (title) title.textContent = isRegister ? 'Creá tu cuenta' : 'Ingresá a tu cuenta'
+    if (description) {
+      description.textContent = isRegister
+        ? 'Un paso más para crear y publicar tu CV.'
+        : 'Gestioná tu CV y mantené tus datos al día.'
+    }
+    submit.textContent = isRegister ? 'Crear cuenta' : 'Iniciar sesión'
+    toggle.textContent = isRegister ? 'Ya tengo cuenta: ingresar' : 'No tengo cuenta: registrarme'
+    hint?.classList.toggle('hidden', !isRegister)
+    forgot?.classList.toggle('hidden', isRegister)
+    if (message) message.classList.add('hidden')
+  }
+
+  toggle.addEventListener('click', () => {
+    isRegister = !isRegister
+    paintMode()
+  })
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault()
+    submit.disabled = true
+    submit.textContent = 'Un momento...'
+
+    try {
+      const accion = isRegister
+        ? await registrarCuenta(emailInput.value, passwordInput.value)
+        : await iniciarSesion(emailInput.value, passwordInput.value)
+
+      if (!accion.success) {
+        showMessage(accion.mensaje, true)
+        return
+      }
+      if ('confirmacionPendiente' in accion && accion.confirmacionPendiente) {
+        showMessage(
+          'Te enviamos un correo para confirmar tu cuenta. Revisá también la carpeta de spam.',
+        )
+        return
+      }
+      window.location.assign('/mi-cv')
+    } catch (error) {
+      showMessage(
+        error instanceof Error
+          ? error.message
+          : 'No se pudo completar la operación. Probá de nuevo.',
+        true,
+      )
+    } finally {
+      submit.disabled = false
+      submit.textContent = isRegister ? 'Crear cuenta' : 'Iniciar sesión'
+    }
+  })
+
+  paintMode()
+</script>

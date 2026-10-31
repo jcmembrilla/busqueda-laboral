@@ -1,0 +1,35 @@
+{
+  "name": "busqueda-laboral",
+  "type": "module",
+  "version": "0.1.0",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "typecheck": "astro check",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "@astrojs/netlify": "^8.2.6",
+    "@astrojs/sitemap": "^3.7.4",
+    "@supabase/supabase-js": "^2.106.1",
+    "@tailwindcss/vite": "^4.3.0",
+    "astro": "^7.3.4",
+    "jspdf": "^4.2.1",
+    "lucide": "^1.23.0",
+    "svg2pdf.js": "^2.7.0",
+    "tailwindcss": "^4.3.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "prettier": "^3.9.10",
+    "prettier-plugin-astro": "^1.1.2",
+    "prettier-plugin-tailwindcss": "^0.8.1",
+    "typescript": "^6.0.3"
+  }
+}

@@ -1,0 +1,669 @@
+---
+import Layout from '../layouts/Layout.astro'
+import Header from '../components/Header.astro'
+import Footer from '../components/Footer.astro'
+import BottomNav from '../components/BottomNav.astro'
+import { CATEGORIAS } from '../utils/constants'
+---
+
+<Layout
+  title="Búsqueda Laboral — Encontrá oportunidades en tu zona"
+  description="Cartelera local de búsquedas de trabajo. Publicá tu CV gratis y conectá con comercios de tu localidad, o encontrá a alguien de tu zona para trabajar."
+  ogTitle="Búsqueda Laboral — Bolsa de trabajo local"
+  ogDescription="Cartelera de CVs de tu localidad. Publicá tu CV gratis o conectá con gente de tu zona para trabajar."
+>
+  <main class="max-w-4xl mx-auto px-4 sm:px-6 pt-8 pb-10 flex flex-col min-h-dvh justify-between">
+    <div class="w-full">
+      <Header showLocalidad={false} backHref="/" backLabel="Volver" backDesktopOnly />
+
+      <p
+        class="text-2xl font-bold tracking-wide mb-5 text-center max-w-lg mx-auto"
+        style="color: var(--primary)"
+      >
+        Búsqueda Laboral
+      </p>
+
+      <div
+        class="max-w-lg mx-auto mb-6 p-5 rounded-3xl"
+        style="background: linear-gradient(135deg, #d97706, #f59e0b)"
+      >
+        <p class="text-lg font-bold mb-1 text-center" style="color: #ffffff">
+          💼 ¿Buscás trabajo?
+        </p>
+        <p
+          class="text-sm font-medium leading-relaxed mb-4"
+          style="color: rgba(255, 255, 255, 0.92)"
+        >
+          Creá tu CV, fácil y rápido, para tenerlo siempre a tu alcance: imprimilo, editalo o
+          compartilo.
+        </p>
+        <div class="flex justify-center">
+          <a
+            id="cta-publicar-cv"
+            href="/login?registro=cv"
+            class="inline-flex items-center justify-center px-5 py-3 min-h-[48px] rounded-2xl text-sm font-bold transition-all active:scale-[0.98] cursor-pointer touch-manipulation"
+            style="background: #ffffff; color: #92400e"
+          >
+            Ingresá para publicar tu CV
+          </a>
+        </div>
+      </div>
+
+      <div
+        class="max-w-lg mx-auto mb-6 rounded-3xl overflow-hidden transition-all"
+        style="background: var(--elevated-60); border: 1px solid var(--border-strong)"
+      >
+        <button
+          id="btn-toggle-porque"
+          type="button"
+          class="w-full flex items-center justify-between px-5 py-4 min-h-[52px] text-left cursor-pointer transition-colors"
+          style="color: var(--primary)"
+        >
+          <span class="text-sm font-bold">¿Por qué crear un CV en Búsqueda Laboral?</span>
+          <svg
+            id="chevron-porque"
+            class="w-4 h-4 shrink-0 transition-transform duration-300"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            stroke-width="2"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </button>
+        <div id="panel-porque" class="hidden px-5 pb-5">
+          <ul class="space-y-3 text-xs leading-relaxed" style="color: var(--secondary)">
+            <li class="flex items-start gap-2.5">
+              <span class="shrink-0 mt-0.5 text-base">🌐</span>
+              <div>
+                <span class="font-bold block mb-0.5" style="color: var(--primary)">
+                  Siempre disponible en la web
+                </span>
+                Tu CV queda publicado online las 24 horas. Compartilo con un click por WhatsApp,
+                email o redes sociales.
+              </div>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <span class="shrink-0 mt-0.5 text-base">📄</span>
+              <div>
+                <span class="font-bold block mb-0.5" style="color: var(--primary)">
+                  Descargalo en PDF
+                </span>
+                Generá una versión en formato PDF para enviarla directamente a los comercios.
+              </div>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <span class="shrink-0 mt-0.5 text-base">🏪</span>
+              <div>
+                <span class="font-bold block mb-0.5" style="color: var(--primary)">
+                  Los comercios te encuentran
+                </span>
+                Si un comerciante busca alguien de tu zona, puede ver tu CV y contactarte.
+              </div>
+            </li>
+            <li class="flex items-start gap-2.5">
+              <span class="shrink-0 mt-0.5 text-base">👥</span>
+              <div>
+                <span class="font-bold block mb-0.5" style="color: var(--primary)">
+                  Visible para toda la comunidad
+                </span>
+                Todos los usuarios de la app pueden ver tu perfil y conocerte.
+              </div>
+            </li>
+          </ul>
+          <a
+            href="/login?registro=cv"
+            class="block w-full text-center mt-4 py-3 min-h-[48px] rounded-2xl text-sm font-bold transition-all active:scale-[0.98] cursor-pointer touch-manipulation"
+            style="background: #f59e0b; color: #ffffff"
+          >
+            Crear mi CV gratis
+          </a>
+        </div>
+      </div>
+
+      <div class="mb-6 flex gap-2 w-full max-w-lg mx-auto">
+        <div class="relative w-[55%]">
+          <button
+            id="selector-ciudad-cartelera"
+            type="button"
+            class="w-full h-full pl-3 pr-7 py-3 min-h-[48px] rounded-2xl text-xs font-bold text-left appearance-none transition-all cursor-pointer text-ellipsis overflow-hidden whitespace-nowrap"
+            style="background: var(--elevated); color: var(--primary); border: 1px solid var(--border-strong)"
+          >
+            <span id="ciudad-cartelera-label" class="truncate block">
+              Todas las localidades
+            </span>
+          </button>
+          <span
+            class="absolute inset-y-0 right-2 flex items-center pointer-events-none transition-colors"
+            style="color: var(--tertiary)"
+          >
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 9l-7 7-7-7"
+              ></path>
+            </svg>
+          </span>
+        </div>
+
+        <div class="relative w-[45%]">
+          <select
+            id="filtro-rubro-cv"
+            class="w-full h-full pl-3 pr-6 py-3 min-h-[48px] rounded-2xl text-xs font-medium appearance-none focus:outline-none transition-all cursor-pointer text-ellipsis overflow-hidden whitespace-nowrap"
+            style="background: var(--elevated); color: var(--secondary); border: 1px solid var(--border-strong)"
+          >
+            <option value="todas">Todos los conocimientos</option>
+            {CATEGORIAS.map((cat) => (
+              <option value={cat.value}>{cat.label}</option>
+            ))}
+          </select>
+          <span
+            class="absolute inset-y-0 right-2 flex items-center pointer-events-none transition-colors"
+            style="color: var(--tertiary)"
+          >
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 9l-7 7-7-7"
+              ></path>
+            </svg>
+          </span>
+        </div>
+      </div>
+
+      <div
+        id="panel-ciudad-cartelera"
+        class="hidden max-w-lg mx-auto mb-6 p-4 rounded-2xl border"
+        style="background: var(--elevated); border-color: var(--border-strong)"
+      >
+        <div class="flex gap-2">
+          <input
+            id="buscar-ciudad-cartelera"
+            type="text"
+            placeholder="🔍 Buscar localidad..."
+            class="w-full px-4 py-2.5 min-h-[44px] rounded-xl text-sm focus:outline-none"
+            style="background: var(--surface); color: var(--primary); border: 1px solid var(--border-strong)"
+          />
+          <button
+            id="btn-detect-cartelera"
+            type="button"
+            class="shrink-0 px-3 py-2.5 min-h-[44px] rounded-xl text-xs font-bold transition-colors cursor-pointer touch-manipulation"
+            style="background: #f59e0b; color: #ffffff"
+          >
+            Ubicación
+          </button>
+        </div>
+        <div id="lista-ciudad-cartelera" class="max-h-52 overflow-y-auto mt-2"></div>
+        <button
+          id="btn-todas-localidades"
+          type="button"
+          class="w-full mt-2 py-2.5 min-h-[44px] rounded-xl text-xs font-bold transition-colors cursor-pointer"
+          style="background: var(--surface); color: var(--secondary); border: 1px solid var(--border-strong)"
+        >
+          Ver todas las localidades
+        </button>
+      </div>
+
+      <div class="mb-4 flex items-center justify-between max-w-lg mx-auto">
+        <h2
+          class="text-sm font-semibold tracking-wider uppercase px-1 pointer-events-none"
+          style="color: var(--tertiary)"
+        >
+          Personas buscando trabajo
+        </h2>
+      </div>
+
+      <div
+        id="contenedor-cartelera"
+        class="grid grid-cols-1 md:grid-cols-2 gap-5 max-w-lg mx-auto"
+      ></div>
+
+      <div
+        id="skeleton-cartelera"
+        class="hidden grid grid-cols-1 md:grid-cols-2 gap-5 max-w-lg mx-auto"
+      >
+        <div class="cv-card skeleton-shimmer">
+          <div
+            class="h-14 w-14 rounded-full mb-3 mx-auto"
+            style="background: var(--border-strongest)"
+          ></div>
+          <div
+            class="h-5 w-2/3 rounded mb-2 mx-auto"
+            style="background: var(--border-strongest)"
+          ></div>
+          <div
+            class="h-4 w-1/3 rounded mb-5 mx-auto"
+            style="background: var(--border-strongest)"
+          ></div>
+          <div class="h-12 w-full rounded-xl" style="background: var(--border-strongest)"></div>
+        </div>
+        <div class="cv-card skeleton-shimmer">
+          <div
+            class="h-14 w-14 rounded-full mb-3 mx-auto"
+            style="background: var(--border-strongest)"
+          ></div>
+          <div
+            class="h-5 w-2/3 rounded mb-2 mx-auto"
+            style="background: var(--border-strongest)"
+          ></div>
+          <div
+            class="h-4 w-1/3 rounded mb-5 mx-auto"
+            style="background: var(--border-strongest)"
+          ></div>
+          <div class="h-12 w-full rounded-xl" style="background: var(--border-strongest)"></div>
+        </div>
+      </div>
+
+      <div
+        id="vacio-cartelera"
+        class="hidden mt-4 max-w-lg mx-auto text-center py-12 px-6 rounded-3xl border"
+        style="background: var(--elevated-40); border-color: var(--border-strongest)"
+      >
+        <span class="text-4xl block mb-3" aria-hidden="true">
+          🧑‍💼
+        </span>
+        <p id="vacio-cartelera-titulo" class="font-bold mb-2" style="color: var(--primary)"></p>
+        <p class="text-sm mb-2" style="color: var(--secondary)">
+          Tu CV va a quedar en la cartelera para que los comercios de tu zona te encuentren.
+        </p>
+        <a
+          href="/login?registro=cv"
+          class="inline-flex items-center justify-center mt-4 px-6 py-3 min-h-[48px] rounded-2xl text-sm font-bold transition-colors cursor-pointer"
+          style="background: #f59e0b; color: #ffffff"
+        >
+          Ingresá para publicar tu CV
+        </a>
+      </div>
+
+      <div id="contenedor-ver-mas-cv" class="hidden flex justify-center mt-8">
+        <span
+          id="ver-mas-spinner-cv"
+          class="w-6 h-6 border-2 border-t-transparent rounded-full animate-spin align-middle"
+          style="border-color: var(--quaternary)"
+        ></span>
+      </div>
+
+      <div
+        id="toast-compartir-cv"
+        class="hidden fixed bottom-24 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-2xl text-xs font-semibold shadow-lg transition-opacity duration-300"
+        style="background: var(--elevated); border: 1px solid var(--border-strong); color: var(--primary)"
+      ></div>
+    </div>
+
+    <Footer />
+  </main>
+
+  <BottomNav activePage="laboral" />
+</Layout>
+
+<script>
+  import {
+    obtenerCurriculumsActivos,
+    obtenerCurriculumPropio,
+  } from '../services/curriculum.service'
+  import type { Curriculum } from '../utils/constants'
+  import { obtenerUltimaCiudad, guardarUltimaCiudad } from '../utils/storage'
+  import { crearCardCurriculum, crearCardEjemplo } from '../utils/cartelera'
+  import { detectarLocalidadDesdeApi } from '../utils/geolocation'
+  import { obtenerSesionActiva } from '../services/auth.service'
+  import { compartirLink } from '../utils/compartir'
+
+  const CIUDADES_API = '/api/ciudades?q='
+
+  const btnTogglePorque = document.getElementById('btn-toggle-porque')
+  const panelPorque = document.getElementById('panel-porque')
+  const chevronPorque = document.getElementById('chevron-porque')
+  btnTogglePorque?.addEventListener('click', () => {
+    panelPorque?.classList.toggle('hidden')
+    chevronPorque?.classList.toggle('rotate-180')
+  })
+
+  const contenedorCartelera = document.getElementById('contenedor-cartelera') as HTMLDivElement
+  const skeletonCartelera = document.getElementById('skeleton-cartelera') as HTMLDivElement
+  const vacioCartelera = document.getElementById('vacio-cartelera') as HTMLDivElement
+  const vacioCarteleraTitulo = document.getElementById(
+    'vacio-cartelera-titulo',
+  ) as HTMLParagraphElement
+  const contenedorVerMas = document.getElementById('contenedor-ver-mas-cv') as HTMLDivElement
+  const verMasSpinner = document.getElementById('ver-mas-spinner-cv') as HTMLSpanElement
+  const filtroRubro = document.getElementById('filtro-rubro-cv') as HTMLSelectElement
+
+  // --- Selección de localidad (autocompletado contra /api/ciudades) ---
+  const selectorCiudad = document.getElementById('selector-ciudad-cartelera') as HTMLButtonElement
+  const ciudadLabel = document.getElementById('ciudad-cartelera-label') as HTMLSpanElement
+  const panelCiudad = document.getElementById('panel-ciudad-cartelera') as HTMLDivElement
+  const buscarCiudad = document.getElementById('buscar-ciudad-cartelera') as HTMLInputElement
+  const listaCiudad = document.getElementById('lista-ciudad-cartelera') as HTMLDivElement
+  const btnDetect = document.getElementById('btn-detect-cartelera') as HTMLButtonElement
+  const btnTodas = document.getElementById('btn-todas-localidades') as HTMLButtonElement
+
+  let ciudadActual = ''
+  let ciudadConsulta = ''
+  let rubroActual = ''
+  let paginaActual = 1
+  let totalPaginas = 1
+  let cargandoMas = false
+  let curriculumsAcumulados: Curriculum[] = []
+  const idsRenderizados = new Set<string>()
+  let miUserId: string | null = null
+
+  function mostrarSkeleton() {
+    if (!skeletonCartelera) return
+    if (contenedorCartelera) contenedorCartelera.innerHTML = ''
+    skeletonCartelera.classList.remove('hidden')
+  }
+
+  function ocultarSkeleton() {
+    skeletonCartelera?.classList.add('hidden')
+  }
+
+  function actualizarCargaAutomatica() {
+    if (!contenedorVerMas) return
+    if (paginaActual >= totalPaginas) {
+      contenedorVerMas.classList.add('hidden')
+      verMasSpinner.classList.add('hidden')
+    } else if (cargandoMas) {
+      contenedorVerMas.classList.remove('hidden')
+      verMasSpinner.classList.remove('hidden')
+    } else {
+      contenedorVerMas.classList.remove('hidden')
+      verMasSpinner.classList.add('hidden')
+    }
+  }
+
+  async function cargarPagina(pagina: number) {
+    cargandoMas = true
+    if (pagina === 1) {
+      mostrarSkeleton()
+      actualizarCargaAutomatica()
+    }
+
+    try {
+      const resultado = await obtenerCurriculumsActivos({
+        ciudad: ciudadConsulta || undefined,
+        rubro: rubroActual || undefined,
+        pagina,
+        porPagina: 12,
+      })
+
+      if (pagina === 1) {
+        curriculumsAcumulados = resultado.curriculums
+        idsRenderizados.clear()
+      } else {
+        curriculumsAcumulados = curriculumsAcumulados.concat(
+          resultado.curriculums.filter((cur) => !idsRenderizados.has(cur.id)),
+        )
+      }
+      totalPaginas = resultado.totalPaginas
+      paginaActual = pagina
+
+      if (pagina === 1) {
+        ocultarSkeleton()
+        renderizarCartelera(true)
+      } else {
+        renderizarCartelera(false)
+      }
+      actualizarCargaAutomatica()
+    } catch {
+      if (pagina === 1) ocultarSkeleton()
+      renderizarCartelera(true)
+      actualizarCargaAutomatica()
+    }
+    cargandoMas = false
+    actualizarCargaAutomatica()
+  }
+
+  const sentinelObserver = new IntersectionObserver(
+    (entries) => {
+      if (
+        entries.some((entry) => entry.isIntersecting) &&
+        !cargandoMas &&
+        paginaActual < totalPaginas
+      ) {
+        cargarPagina(paginaActual + 1)
+      }
+    },
+    { rootMargin: '200px 0px' },
+  )
+  if (contenedorVerMas) sentinelObserver.observe(contenedorVerMas)
+
+  function renderizarCartelera(limpiar: boolean) {
+    if (!contenedorCartelera) return
+    if (limpiar) {
+      contenedorCartelera.innerHTML = ''
+      idsRenderizados.clear()
+    }
+
+    if (curriculumsAcumulados.length === 0) {
+      ocultarSkeleton()
+      if (limpiar) contenedorCartelera.appendChild(crearCardEjemplo('cta-ejemplo-cv'))
+      if (vacioCartelera) {
+        vacioCartelera.classList.remove('hidden')
+        vacioCarteleraTitulo.textContent = ciudadActual
+          ? `Todavía no hay CVs en ${ciudadActual}`
+          : 'Todavía no hay CVs publicados'
+      }
+      observarReveal()
+      return
+    }
+
+    if (vacioCartelera) vacioCartelera.classList.add('hidden')
+
+    const nuevos = limpiar
+      ? curriculumsAcumulados
+      : curriculumsAcumulados.filter((cur) => !idsRenderizados.has(cur.id))
+
+    nuevos.forEach((cur) => {
+      contenedorCartelera.appendChild(crearCardCurriculum(cur, miUserId))
+      idsRenderizados.add(cur.id)
+    })
+
+    // El ejemplo siempre queda como primera card.
+    if (limpiar) {
+      contenedorCartelera.insertBefore(
+        crearCardEjemplo('cta-ejemplo-cv'),
+        contenedorCartelera.firstChild,
+      )
+    }
+
+    observarReveal()
+  }
+
+  const revealObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('revealed')
+          revealObserver.unobserve(entry.target)
+        }
+      })
+    },
+    { threshold: 0.1 },
+  )
+
+  function observarReveal() {
+    document.querySelectorAll('.reveal:not(.revealed)').forEach((el) => {
+      revealObserver.observe(el)
+    })
+  }
+
+  function recargarConFiltros() {
+    paginaActual = 1
+    totalPaginas = 1
+    cargandoMas = false
+    curriculumsAcumulados = []
+    void cargarPagina(1)
+  }
+
+  // --- Panel de localidad ---
+  function abrirPanelCiudad() {
+    panelCiudad?.classList.remove('hidden')
+    buscarCiudad?.focus()
+  }
+
+  function cerrarPanelCiudad() {
+    panelCiudad?.classList.add('hidden')
+  }
+
+  function seleccionarCiudad(ciudad: string) {
+    ciudadActual = ciudad
+    ciudadConsulta = ciudad
+    guardarUltimaCiudad(ciudad)
+    ciudadLabel.textContent = ciudad
+    cerrarPanelCiudad()
+    recargarConFiltros()
+  }
+
+  selectorCiudad?.addEventListener('click', () => {
+    if (panelCiudad.classList.contains('hidden')) {
+      abrirPanelCiudad()
+    } else {
+      cerrarPanelCiudad()
+    }
+  })
+
+  document.addEventListener('click', (e) => {
+    if (
+      panelCiudad &&
+      !panelCiudad.contains(e.target as Node) &&
+      selectorCiudad &&
+      !selectorCiudad.contains(e.target as Node)
+    ) {
+      cerrarPanelCiudad()
+    }
+  })
+
+  let timeoutCiudad: number | null = null
+  buscarCiudad?.addEventListener('input', () => {
+    const valor = buscarCiudad.value.trim()
+    if (timeoutCiudad) window.clearTimeout(timeoutCiudad)
+    if (valor.length < 2) {
+      listaCiudad.innerHTML = ''
+      return
+    }
+    timeoutCiudad = window.setTimeout(async () => {
+      try {
+        const res = await fetch(CIUDADES_API + encodeURIComponent(valor))
+        if (!res.ok) return
+        const datos: { nombre: string; provincia?: string }[] = await res.json()
+        listaCiudad.innerHTML = ''
+        datos.forEach((item) => {
+          const full = item.provincia ? `${item.nombre} (${item.provincia})` : item.nombre
+          const btn = document.createElement('button')
+          btn.type = 'button'
+          btn.className =
+            'w-full text-left px-3 py-2.5 min-h-[44px] rounded-xl text-sm font-medium transition-colors hover:bg-emerald-500/10 cursor-pointer'
+          btn.style.color = 'var(--primary)'
+          btn.textContent = full
+          btn.addEventListener('click', () => seleccionarCiudad(full))
+          listaCiudad.appendChild(btn)
+        })
+      } catch {
+        listaCiudad.innerHTML = ''
+      }
+    }, 300)
+  })
+
+  btnDetect?.addEventListener('click', async () => {
+    btnDetect.textContent = 'Detectando...'
+    btnDetect.disabled = true
+    try {
+      const detectada = await detectarLocalidadDesdeApi()
+      if (detectada) {
+        seleccionarCiudad(detectada)
+      } else {
+        btnDetect.textContent = 'No se pudo detectar'
+        window.setTimeout(() => {
+          btnDetect.textContent = 'Ubicación'
+          btnDetect.disabled = false
+        }, 2000)
+      }
+    } catch {
+      btnDetect.textContent = 'No se pudo detectar'
+      window.setTimeout(() => {
+        btnDetect.textContent = 'Ubicación'
+        btnDetect.disabled = false
+      }, 2000)
+    }
+  })
+
+  window.addEventListener('ciudad-detectada', ((e: Event) => {
+    const ciudad = (e as CustomEvent<string>).detail
+    if (ciudad) seleccionarCiudad(ciudad)
+  }) as EventListener)
+
+  btnTodas?.addEventListener('click', () => {
+    ciudadActual = ''
+    ciudadConsulta = ''
+    guardarUltimaCiudad('')
+    ciudadLabel.textContent = 'Todas las localidades'
+    buscarCiudad.value = ''
+    listaCiudad.innerHTML = ''
+    cerrarPanelCiudad()
+    recargarConFiltros()
+  })
+
+  filtroRubro?.addEventListener('change', () => {
+    const valor = filtroRubro.value
+    rubroActual = valor === 'todas' ? '' : valor
+    recargarConFiltros()
+  })
+
+  // --- CTA: si ya está logueado, lleva al panel del CV ---
+  const cta = document.getElementById('cta-publicar-cv') as HTMLAnchorElement
+  const ctaVacio = vacioCartelera?.querySelector('a') as HTMLAnchorElement | null
+  const ctaEjemplo = document.getElementById('cta-ejemplo-cv') as HTMLAnchorElement | null
+  obtenerSesionActiva()
+    .then((sesion) => {
+      if (!sesion) return
+      miUserId = sesion.id
+      const destino = '/mi-cv'
+      cta.href = destino
+      cta.textContent = 'Ir a mi CV'
+      if (ctaVacio) {
+        ctaVacio.href = destino
+        ctaVacio.textContent = 'Ir a mi CV'
+      }
+      if (ctaEjemplo) {
+        ctaEjemplo.href = destino
+        ctaEjemplo.textContent = 'Ir a mi CV'
+      }
+    })
+    .catch(() => {
+      // Sin sesión: el CTA ya apunta a registro.
+    })
+
+  // --- Carga inicial ---
+  const ciudadGuardada = obtenerUltimaCiudad() || ''
+  if (ciudadGuardada) {
+    ciudadActual = ciudadGuardada
+    ciudadConsulta = ciudadGuardada
+    ciudadLabel.textContent = ciudadGuardada
+  }
+
+  obtenerCurriculumPropio().then((cur) => {
+    if (cur && cta.textContent === 'Ingresá para publicar tu CV') {
+      cta.href = '/mi-cv'
+      cta.textContent = 'Ir a mi CV'
+    }
+  })
+
+  contenedorCartelera.addEventListener('click', async (e) => {
+    const btnCompartir = (e.target as HTMLElement).closest(
+      '[data-btn-compartir-cv]',
+    ) as HTMLButtonElement | null
+    if (btnCompartir) {
+      const cvId = btnCompartir.getAttribute('data-btn-compartir-cv') || ''
+      const nombre = btnCompartir.closest('.cv-card')?.querySelector('h3')?.textContent || 'CV'
+      const url = window.location.origin + '/cv/' + cvId
+      const toast = document.getElementById('toast-compartir-cv')
+      await compartirLink(url, nombre, toast)
+    }
+  })
+
+  void cargarPagina(1)
+</script>

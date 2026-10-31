@@ -1,0 +1,164 @@
+---
+---
+
+<div
+  id="inapp-prompt"
+  class="hidden fixed inset-0 z-50 flex items-center justify-center p-6"
+  style="background: rgba(0, 0, 0, 0.65)"
+>
+  <div
+    class="w-full max-w-sm p-6 rounded-3xl shadow-2xl text-center transition-all duration-300"
+    style="background: var(--surface); border: 1px solid var(--border-strong)"
+  >
+    <img
+      src="/logo.webp"
+      alt="Búsqueda Laboral"
+      class="w-20 h-20 mx-auto mb-4 rounded-full"
+      decoding="async"
+    />
+    <h2 class="text-lg font-bold mb-2" style="color: var(--primary)">
+      Abrí en el navegador
+    </h2>
+    <p class="text-sm leading-relaxed mb-6" style="color: var(--secondary)">
+      Esta red social abre el enlace dentro de su propia ventana. Para una mejor experiencia, abrí
+      Búsqueda Laboral en Chrome o Safari.
+    </p>
+
+    <button
+      id="btn-abrir-en-navegador"
+      class="w-full py-3 min-h-[48px] rounded-xl text-sm font-bold transition-all active:scale-[0.97] cursor-pointer touch-manipulation"
+      style="background: var(--primary); color: var(--surface)"
+    >
+      Abrir en el navegador
+    </button>
+
+    <button
+      id="btn-copiar-enlace"
+      class="w-full py-3 min-h-[48px] mt-3 rounded-xl text-sm font-semibold transition-all active:scale-[0.97] cursor-pointer touch-manipulation"
+      style="background: var(--elevated); color: var(--secondary); border: 1px solid var(--border-strong)"
+    >
+      Copiar enlace
+    </button>
+    <p id="inapp-copiado" class="hidden text-xs font-semibold mt-2" style="color: var(--primary)">
+      ¡Enlace copiado!
+    </p>
+
+    <div
+      id="inapp-instrucciones-ios"
+      class="hidden mt-5 pt-4 text-xs"
+      style="border-top: 1px solid var(--border-strong)"
+    >
+      <p class="font-semibold mb-1.5" style="color: var(--primary)">
+        ¿No se abrió? Hacelo a mano:
+      </p>
+      <p class="leading-relaxed" style="color: var(--tertiary)">
+        1. Tocá el ícono <strong style="color: var(--secondary)">⋯</strong> abajo (o el de
+        compartir) en la esquina de la red social.
+      </p>
+      <p class="leading-relaxed mt-1" style="color: var(--tertiary)">
+        2. Elegí{' '}
+        <strong id="inapp-nombre-navegador" style="color: var(--secondary)">
+          Abrir en el navegador
+        </strong>
+        .
+      </p>
+    </div>
+
+    <button
+      id="btn-cerrar-inapp"
+      class="mt-5 text-xs font-semibold transition-colors cursor-pointer touch-manipulation"
+      style="color: var(--tertiary)"
+    >
+      Continuar acá
+    </button>
+  </div>
+</div>
+
+<script>
+  import {
+    REGEX_NAVEGADOR_INTEGRADO,
+    detectarNavegador,
+    detectarPlataforma,
+  } from '../utils/install'
+
+  // Navegadores integrados de Facebook e Instagram: detectamos por User-Agent.
+  const ES_NAVEGADOR_INTEGRADO = REGEX_NAVEGADOR_INTEGRADO.test(navigator.userAgent)
+
+  const esStandalone =
+    ('standalone' in navigator && (navigator as { standalone?: boolean }).standalone) ||
+    matchMedia('(display-mode: standalone)').matches
+
+  const prompt = document.getElementById('inapp-prompt')
+  const btnAbrir = document.getElementById('btn-abrir-en-navegador')
+  const btnCopiar = document.getElementById('btn-copiar-enlace')
+  const btnCerrar = document.getElementById('btn-cerrar-inapp')
+  const copiado = document.getElementById('inapp-copiado')
+  const instruccionesIos = document.getElementById('inapp-instrucciones-ios')
+
+  function nombreNavegadorIos(): string {
+    const nav = detectarNavegador()
+    if (nav === 'chrome') return 'Chrome'
+    if (nav === 'firefox') return 'Firefox'
+    if (nav === 'edge') return 'Edge'
+    return 'Safari'
+  }
+
+  if (!ES_NAVEGADOR_INTEGRADO || esStandalone || !prompt) {
+    // Navegador normal o app ya instalada: no mostrar nada.
+  } else if (!sessionStorage.getItem('inapp-browser-dismissed')) {
+    const esIos = detectarPlataforma() === 'ios'
+
+    if (esIos) {
+      const nombreNav = nombreNavegadorIos()
+      const elNombre = document.getElementById('inapp-nombre-navegador')
+      if (elNombre) elNombre.textContent = `Abrir en ${nombreNav}`
+      instruccionesIos?.classList.remove('hidden')
+    }
+
+    prompt.classList.remove('hidden')
+
+    function abrirEnNavegador() {
+      const url = window.location.href
+      if (/android/i.test(navigator.userAgent)) {
+        const intent =
+          'intent://' +
+          window.location.host +
+          window.location.pathname +
+          window.location.search +
+          window.location.hash +
+          '#Intent;scheme=https;action=android.intent.action.VIEW;S.browser_fallback_url=' +
+          encodeURIComponent(url) +
+          ';end'
+        window.location.href = intent
+      } else {
+        window.open(url, '_system')
+      }
+    }
+
+    btnAbrir?.addEventListener('click', abrirEnNavegador)
+
+    btnCopiar?.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(window.location.href)
+      } catch {
+        const ta = document.createElement('textarea')
+        ta.value = window.location.href
+        ta.style.position = 'fixed'
+        ta.style.opacity = '0'
+        document.body.appendChild(ta)
+        ta.select()
+        document.execCommand('copy')
+        document.body.removeChild(ta)
+      }
+      if (copiado) {
+        copiado.classList.remove('hidden')
+        setTimeout(() => copiado.classList.add('hidden'), 2500)
+      }
+    })
+
+    btnCerrar?.addEventListener('click', () => {
+      sessionStorage.setItem('inapp-browser-dismissed', '1')
+      prompt.classList.add('hidden')
+    })
+  }
+</script>

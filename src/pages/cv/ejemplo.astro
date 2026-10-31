@@ -1,0 +1,211 @@
+---
+import Layout from '../../layouts/Layout.astro'
+import BackButton from '../../components/BackButton.astro'
+import { renderCvHtml } from '../../utils/cv-render'
+import { CV_EJEMPLO } from '../../utils/cartelera'
+import { componerOgCv } from '../../utils/cv-og'
+import type { Curriculum } from '../../utils/constants'
+
+// Los datos vienen del mismo objeto que la card de ejemplo de la cartelera.
+// Antes esta página tenía su propia copia: el postulante comparaba "el ejemplo"
+// con "mi CV" y veía dos personas distintas según por dónde entrara.
+const ejemplo: Curriculum = {
+  id: 'ejemplo',
+  userId: 'ejemplo',
+  ...CV_EJEMPLO,
+  activo: true,
+  direccion: 'Av. General Paz 1234, Córdoba',
+  nivelEstudios: 'Secundario completo',
+  idiomas: 'Inglés intermedio',
+  movilidad: 'Moto',
+  formato: 'moderno',
+}
+
+// Mismo formato de compartir que un CV real (logo de la app, sin foto).
+const ogEjemplo = componerOgCv(ejemplo)
+---
+
+<Layout
+  title="CV de ejemplo | Búsqueda Laboral"
+  description="Ejemplo de cómo podés armar tu CV para la cartelera laboral local."
+  ogTitle={ogEjemplo.titulo}
+  ogDescription={ogEjemplo.descripcion}
+>
+  <main class="max-w-2xl mx-auto px-4 sm:px-6 pt-6 pb-10 flex flex-col min-h-dvh">
+    <div class="w-full flex-1">
+      <div class="flex items-center justify-between gap-3 mb-6">
+        <p class="text-sm font-bold tracking-wide" style="color: var(--primary)">
+          CV de {ejemplo.nombre}
+        </p>
+        <BackButton href="/" label="Volver a la cartelera" />
+      </div>
+
+      <div
+        class="rounded-3xl overflow-hidden"
+        style="background: var(--elevated); border: 1px solid var(--border-strong); box-shadow: var(--card-shadow)"
+      >
+        <div
+          class="px-6 sm:px-8 pt-6 pb-3"
+          style="background: var(--elevated); border-bottom: 1px solid var(--border-strong)"
+        >
+          <p class="text-xs font-bold mb-2" style="color: var(--secondary)">
+            Probalas — elegí una plantilla
+          </p>
+          <div class="flex gap-2" data-formato-control>
+            <button
+              type="button"
+              data-formato="clasico"
+              class="flex-1 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer touch-manipulation"
+            >
+              Clásico
+            </button>
+            <button
+              type="button"
+              data-formato="moderno"
+              class="flex-1 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer touch-manipulation"
+            >
+              Moderno
+            </button>
+            <button
+              type="button"
+              data-formato="compacto"
+              class="flex-1 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer touch-manipulation"
+            >
+              Compacto
+            </button>
+          </div>
+        </div>
+
+        <div id="cv-ejemplo-render" class="px-0">
+          <Fragment set:html={renderCvHtml(ejemplo, ejemplo.formato || 'clasico')} />
+        </div>
+
+        <div class="px-6 sm:px-8 pb-6 space-y-3">
+          <a
+            href="/login?registro=cv"
+            class="flex items-center justify-center gap-2 px-4 py-3 min-h-[48px] rounded-2xl text-sm font-bold transition-all active:scale-[0.98] cursor-pointer touch-manipulation"
+            style="background: #f59e0b; color: #ffffff"
+          >
+            Empezá a crear tu CV
+          </a>
+
+          <button
+            id="btn-compartir-ejemplo"
+            type="button"
+            class="w-full py-3 min-h-[48px] rounded-2xl text-sm font-bold transition-all active:scale-[0.98] cursor-pointer touch-manipulation"
+            style="background: var(--surface); color: var(--primary); border: 1px solid var(--border-strong)"
+          >
+            Compartir
+          </button>
+
+          <button
+            id="btn-descargar-cv"
+            type="button"
+            class="w-full py-3 min-h-[48px] rounded-2xl text-sm font-bold transition-all active:scale-[0.98] cursor-pointer touch-manipulation flex items-center justify-center gap-2"
+            style="background: var(--surface); color: var(--primary); border: 1px solid var(--border-strong)"
+          >
+            <span
+              id="spinner-pdf"
+              class="hidden w-4 h-4 border-2 border-t-transparent rounded-full animate-spin"
+              style="border-color: var(--primary); border-top-color: transparent"
+            ></span>
+            <span id="texto-pdf">Descargar CV en PDF</span>
+          </button>
+        </div>
+      </div>
+
+      <script
+        type="application/json"
+        id="cv-data"
+        set:html={JSON.stringify(ejemplo).replace(/</g, '\\u003c')}
+      />
+    </div>
+
+    <div
+      id="toast-ejemplo"
+      class="hidden fixed bottom-24 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-2xl text-xs font-semibold shadow-lg transition-opacity duration-300"
+      style="background: var(--elevated); border: 1px solid var(--border-strong); color: var(--primary)"
+    ></div>
+  </main>
+</Layout>
+
+<script>
+  import { initPdfDownloadHandler } from '../../utils/pdf-handler'
+  import { compartirLink } from '../../utils/compartir'
+  import { renderCvHtml } from '../../utils/cv-render'
+  import type { Curriculum, FormatoCv } from '../../utils/constants'
+
+  const ejemploData = (() => {
+    const el = document.getElementById('cv-data')
+    if (!el) return null
+    try {
+      return JSON.parse(el.textContent || 'null') as Curriculum
+    } catch {
+      return null
+    }
+  })()
+
+  let formatoActual: FormatoCv = 'moderno'
+
+  const contenedorRender = document.getElementById('cv-ejemplo-render')
+  const controlFormato = document.querySelector('[data-formato-control]')
+
+  function renderizarPreview() {
+    if (!ejemploData || !contenedorRender) return
+    contenedorRender.innerHTML = renderCvHtml(ejemploData, formatoActual)
+  }
+
+  function pintarControlesFormato() {
+    if (!controlFormato) return
+    const botones = Array.from(
+      controlFormato.querySelectorAll('button[data-formato]'),
+    ) as HTMLButtonElement[]
+    for (const boton of botones) {
+      const activo = boton.dataset.formato === formatoActual
+      boton.style.background = activo ? '#f59e0b' : 'var(--elevated)'
+      boton.style.color = activo ? '#ffffff' : 'var(--tertiary)'
+      boton.style.border = `1px solid ${activo ? 'transparent' : 'var(--border-strong)'}`
+      boton.style.boxShadow = activo ? '0 2px 6px rgba(0,0,0,0.08)' : 'none'
+    }
+  }
+
+  controlFormato?.addEventListener('click', (e) => {
+    const boton = (e.target as HTMLElement).closest(
+      'button[data-formato]',
+    ) as HTMLButtonElement | null
+    if (!boton) return
+    const formato = boton.dataset.formato as FormatoCv
+    if (!formato || formato === formatoActual) return
+    formatoActual = formato
+    if (ejemploData) ejemploData.formato = formato
+    pintarControlesFormato()
+    renderizarPreview()
+  })
+
+  renderizarPreview()
+  pintarControlesFormato()
+
+  document.getElementById('btn-compartir-ejemplo')?.addEventListener('click', () => {
+    const toast = document.getElementById('toast-ejemplo')
+    void compartirLink(window.location.href, 'CV de ejemplo — Juan López', toast)
+  })
+
+  initPdfDownloadHandler({
+    btnId: 'btn-descargar-cv',
+    spinnerId: 'spinner-pdf',
+    textoId: 'texto-pdf',
+    getData: () => ejemploData,
+    onError: (_err, { textoOriginal, texto }) => {
+      const btn = document.getElementById('btn-descargar-cv')
+      const spinner = document.getElementById('spinner-pdf')
+      if (texto) texto.textContent = 'No se pudo generar el PDF'
+      if (btn) btn.style.color = '#ef4444'
+      window.setTimeout(() => {
+        spinner?.classList.add('hidden')
+        if (texto) texto.textContent = textoOriginal
+        if (btn) btn.style.color = ''
+        ;(btn as HTMLButtonElement).disabled = false
+      }, 3500)
+    },
+  })
+</script>

@@ -1,0 +1,19 @@
+---
+interface Props {
+  href?: string
+  label?: string
+}
+
+const { href = '/', label = 'Volver' } = Astro.props
+---
+
+<a
+  href={href}
+  class="inline-flex items-center gap-1 text-xs px-3 py-3 sm:py-2 min-h-[48px] sm:min-h-0 rounded-xl transition-all shrink-0 touch-manipulation"
+  style="background: var(--elevated); color: var(--secondary); border: 1px solid var(--border-strong);"
+  class:list={{
+    'hover:opacity-80': true,
+  }}
+>
+  &larr; {label}
+</a>

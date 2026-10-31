@@ -1,0 +1,6 @@
+# Permisos de build scripts (pnpm 12 reemplazó onlyBuiltDependencies por
+# allowBuilds). esbuild necesita su postinstall para preparar el binario;
+# core-js solo muestra un aviso de financiación, no hace falta construirlo.
+allowBuilds:
+  esbuild: true
+  core-js: false

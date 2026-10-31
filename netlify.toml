@@ -1,0 +1,11 @@
+# Configuración de despliegue en Netlify. Los secretos van en el dashboard de
+# Netlify (Site settings > Environment variables), no en este archivo:
+#   PUBLIC_SITE_URL         → dominio final, ej https://app.netlify.app o propio
+#   PUBLIC_SUPABASE_URL     → URL del proyecto Supabase nuevo
+#   PUBLIC_SUPABASE_ANON_KEY→ clave pública anon del mismo proyecto
+[build]
+  command = "pnpm build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"

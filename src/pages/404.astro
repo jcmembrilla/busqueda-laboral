@@ -1,0 +1,27 @@
+---
+import Layout from '../layouts/Layout.astro'
+---
+
+<Layout
+  title="Página no encontrada | Búsqueda Laboral"
+  description="La página que buscaste no existe o cambió de dirección."
+>
+  <main class="mx-auto flex min-h-dvh max-w-md flex-col items-center justify-center px-4 py-10 text-center">
+    <p class="text-6xl font-black" style="color: var(--accent)">
+      404
+    </p>
+    <h1 class="mt-3 text-xl font-bold" style="color: var(--primary)">
+      Página no encontrada
+    </h1>
+    <p class="mt-2 text-sm" style="color: var(--secondary)">
+      La dirección que seguiste no existe o cambió de lugar.
+    </p>
+    <a
+      href="/"
+      class="mt-6 rounded-xl px-5 py-3 text-sm font-bold text-white"
+      style="background: var(--accent)"
+    >
+      Volver a la cartelera
+    </a>
+  </main>
+</Layout>

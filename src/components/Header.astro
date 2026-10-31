@@ -1,0 +1,280 @@
+---
+interface Props {
+  showLocalidad?: boolean
+  backHref?: string
+  backLabel?: string
+  backDesktopOnly?: boolean
+  id?: string
+}
+
+import ThemeToggle from './ThemeToggle.astro'
+import BackButton from './BackButton.astro'
+
+const {
+  showLocalidad = true,
+  backHref,
+  backLabel,
+  backDesktopOnly = false,
+  id: headerId,
+} = Astro.props
+---
+
+<header
+  id={headerId}
+  class="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 pb-4 mb-4 w-full"
+>
+  <a href="/" class="flex items-center gap-2 group shrink-0 order-1">
+    <div class="w-12 h-12 rounded-full flex items-center justify-center shrink-0">
+      <img src="/logo.webp" alt="Búsqueda Laboral" class="logo-img w-9 h-9" decoding="async" />
+    </div>
+    <div class="flex items-center">
+      <h1
+        class="text-2xl font-bold tracking-wide"
+        style="color: var(--primary)"
+        class:list={{
+          'group-hover:text-emerald-400 transition-colors': true,
+        }}
+      >
+        Búsqueda Laboral
+      </h1>
+    </div>
+  </a>
+
+  <div class="order-2 sm:order-3 flex items-center gap-2">
+    <button
+      id="btn-instalar-header"
+      type="button"
+      class="hidden text-xs font-bold px-3 py-3 sm:py-2.5 min-h-[48px] sm:min-h-0 rounded-xl items-center gap-1.5 shrink-0 transition-all active:scale-[0.98] cursor-pointer touch-manipulation"
+      style="background: var(--elevated); color: var(--secondary); border: 1px solid var(--border-strong)"
+    >
+      <svg
+        class="w-3.5 h-3.5 shrink-0"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+        stroke-width="2"
+        aria-hidden="true"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"
+        ></path>
+      </svg>
+      Instalar
+    </button>
+    <ThemeToggle />
+  </div>
+
+  <div class="flex items-center gap-3 order-3 sm:order-2 w-full sm:w-auto justify-end sm:justify-start">
+    {backHref && (
+      <span class={backDesktopOnly ? 'hidden sm:inline-flex' : ''}>
+        <BackButton href={backHref} label={backLabel ?? 'Volver'} />
+      </span>
+    )}
+    {showLocalidad && (
+      <div class="flex items-center gap-1.5 min-w-0 flex-1 sm:flex-initial">
+        <span
+          class="text-[11px] font-medium shrink-0 hidden sm:inline"
+          style="color: var(--tertiary)"
+        >
+          Estás en:
+        </span>
+        <div class="relative flex-1 sm:min-w-[180px]" data-ciudad-dropdown>
+          <button
+            id="selector-ciudad-cabecera"
+            class="w-full py-3 sm:py-2.5 min-h-[48px] sm:min-h-0 rounded-xl text-xs font-bold flex items-center justify-between gap-2 cursor-pointer transition-colors px-3"
+            style="background: var(--elevated); color: var(--primary); border: 1px solid var(--border-strong)"
+            type="button"
+          >
+            <span id="ciudad-label" class="truncate">
+              Cargando...
+            </span>
+            <svg
+              id="ciudad-chevron"
+              class="w-3 h-3 shrink-0 transition-transform"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </button>
+
+          <div
+            id="ciudad-panel"
+            class="hidden absolute top-full left-0 right-0 mt-1 z-50 rounded-xl overflow-hidden"
+            style="background: var(--elevated); border: 1px solid var(--border-strong); box-shadow: 0 4px 12px rgba(0,0,0,0.3)"
+          >
+            <div class="p-2">
+              <input
+                id="ciudad-search"
+                type="text"
+                placeholder="🔍 Buscar localidad..."
+                class="w-full py-2 px-3 rounded-lg text-xs outline-none"
+                style="background: var(--surface); color: var(--primary); border: 1px solid var(--border-strong)"
+              />
+            </div>
+
+            <button
+              id="btn-detect-ubicacion"
+              class="w-full text-left py-3.5 px-3 min-h-[48px] text-xs font-medium flex items-center gap-2 cursor-pointer transition-colors hover:opacity-80"
+              style="color: var(--secondary)"
+              type="button"
+            >
+              <i
+                data-lucide="map-pin"
+                class="inline-block w-3.5 h-3.5 align-text-bottom shrink-0"
+              />{' '}
+              Detectar mi ubicación
+            </button>
+
+            <div id="ciudad-lista" class="max-h-48 overflow-y-auto" />
+
+            <button
+              id="btn-compartir-localidad"
+              class="w-full py-3.5 px-3 min-h-[48px] text-xs font-medium flex items-center gap-2 cursor-pointer transition-colors hover:opacity-80 border-t"
+              style="color: var(--primary); border-color: var(--border-strong)"
+              type="button"
+            >
+              <svg
+                class="w-3.5 h-3.5 shrink-0"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <>
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"
+                  />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M16 6l-4-4-4 4" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 2v13" />
+                </>
+              </svg>{' '}
+              Compartí tu localidad
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+
+    <a
+      id="btn-auth-cabecera"
+      href="/login"
+      class="text-xs font-bold px-4 py-3 sm:py-2.5 min-h-[48px] sm:min-h-0 rounded-xl transition-all hidden sm:flex items-center gap-1.5 shrink-0"
+      style="background: var(--elevated); color: var(--secondary); border: 1px solid var(--border-strong)"
+    >
+      <i data-lucide="log-out" class="inline-block w-3.5 h-3.5 align-text-bottom shrink-0"></i>{' '}
+      Ingresar
+    </a>
+  </div>
+</header>
+
+<script>
+  import { obtenerUltimaCiudad } from '../utils/storage'
+  import { puedeInstalar, pedirInstalacion } from '../utils/install'
+  import { detectarLocalidadDesdeApi } from '../utils/geolocation'
+
+  const ICONO_COMPARTIR =
+    '<svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><path stroke-linecap="round" stroke-linejoin="round" d="M16 6l-4-4-4 4"></path><path stroke-linecap="round" stroke-linejoin="round" d="M12 2v13"></path></svg>'
+
+  const btnInstalarHeader = document.getElementById(
+    'btn-instalar-header',
+  ) as HTMLButtonElement | null
+
+  if (btnInstalarHeader && puedeInstalar()) {
+    btnInstalarHeader.classList.add('sm:flex')
+    btnInstalarHeader.addEventListener('click', () => {
+      void pedirInstalacion()
+    })
+    window.addEventListener('app-instalada', () => {
+      btnInstalarHeader.classList.remove('sm:flex')
+    })
+  }
+
+  function extraerNombreCiudad(ciudad: string): string {
+    return ciudad.split(' (')[0].trim()
+  }
+
+  function restaurarBoton(boton: HTMLButtonElement) {
+    boton.innerHTML = `${ICONO_COMPARTIR} Compartí tu localidad`
+  }
+
+  const btnCompartir = document.getElementById(
+    'btn-compartir-localidad',
+  ) as HTMLButtonElement | null
+
+  if (btnCompartir) {
+    restaurarBoton(btnCompartir)
+    btnCompartir.addEventListener('click', async () => {
+      const ciudad = obtenerUltimaCiudad()?.trim() || ''
+      if (!ciudad) {
+        btnCompartir.innerHTML = 'Seleccioná tu localidad primero'
+        window.setTimeout(() => restaurarBoton(btnCompartir), 2200)
+        return
+      }
+      const url = `${window.location.origin}/?ciudad=${encodeURIComponent(
+        extraerNombreCiudad(ciudad),
+      )}`
+      try {
+        if (typeof navigator.share === 'function') {
+          await navigator.share({
+            title: 'Búsqueda Laboral',
+            text: `Conocé los CVs de ${ciudad} en Búsqueda Laboral`,
+            url,
+          })
+          return
+        }
+        await navigator.clipboard.writeText(url)
+        btnCompartir.innerHTML = 'Link copiado'
+        window.setTimeout(() => restaurarBoton(btnCompartir), 2200)
+      } catch {
+        // El usuario canceló el compartir o no hay portapapeles disponible.
+      }
+    })
+  }
+
+  const btnDetect = document.getElementById('btn-detect-ubicacion') as HTMLButtonElement | null
+  const ciudadLabel = document.getElementById('ciudad-label') as HTMLSpanElement | null
+
+  if (btnDetect) {
+    const restaurarDetect = () => {
+      btnDetect.innerHTML =
+        '<i data-lucide="map-pin" class="inline-block w-3.5 h-3.5 align-text-bottom shrink-0"></i> Detectar mi ubicación'
+      btnDetect.disabled = false
+    }
+
+    btnDetect.addEventListener('click', async () => {
+      btnDetect.innerHTML =
+        '<i data-lucide="loader" class="inline-block w-3.5 h-3.5 align-text-bottom shrink-0 animate-spin"></i> Detectando...'
+      btnDetect.disabled = true
+      try {
+        const detectada = await detectarLocalidadDesdeApi()
+        if (detectada) {
+          if (ciudadLabel) {
+            ciudadLabel.innerHTML = `<i data-lucide="map-pin" class="inline-block w-3.5 h-3.5 align-text-bottom shrink-0"></i> ${detectada}`
+          }
+          window.dispatchEvent(new CustomEvent('ciudad-detectada', { detail: detectada }))
+          restaurarDetect()
+        } else {
+          btnDetect.innerHTML =
+            '<i data-lucide="x" class="inline-block w-3.5 h-3.5 align-text-bottom shrink-0"></i> No se pudo detectar'
+          window.setTimeout(restaurarDetect, 2500)
+        }
+      } catch {
+        btnDetect.innerHTML =
+          '<i data-lucide="x" class="inline-block w-3.5 h-3.5 align-text-bottom shrink-0"></i> No se pudo detectar'
+        window.setTimeout(restaurarDetect, 2500)
+      }
+    })
+  }
+</script>

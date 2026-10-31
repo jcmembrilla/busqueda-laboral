@@ -1,0 +1,29 @@
+---
+interface Props {
+  type?: 'error' | 'success'
+  id?: string
+  class?: string
+}
+
+const { type = 'error', id = '' } = Astro.props
+
+const isError = type === 'error'
+const style = isError
+  ? 'background: var(--alert-error-bg); border-color: var(--alert-error-border); color: var(--alert-error-text)'
+  : 'background: var(--alert-success-bg); border-color: var(--alert-success-border); color: var(--alert-success-text)'
+const iconStyle = isError ? 'color: var(--alert-error-text)' : 'color: var(--alert-success-text)'
+const icon = isError
+  ? '<i data-lucide="triangle-alert" class="inline-block w-3.5 h-3.5"></i>'
+  : '<i data-lucide="check" class="inline-block w-3.5 h-3.5"></i>'
+---
+
+<div
+  id={id}
+  class="hidden text-xs p-4 rounded-2xl mb-5 flex items-start gap-2.5 border"
+  style={style}
+>
+  <span class="font-bold shrink-0" style={iconStyle}>
+    <Fragment set:html={icon} />
+  </span>
+  <span id={`${id}-texto`}>Cargando...</span>
+</div>

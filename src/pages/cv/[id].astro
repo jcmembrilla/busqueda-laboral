@@ -1,0 +1,235 @@
+---
+import Layout from '../../layouts/Layout.astro'
+import BackButton from '../../components/BackButton.astro'
+import { obtenerCurriculumPublico } from '../../services/curriculum.service'
+import type { Curriculum } from '../../utils/constants'
+import { renderCvHtml } from '../../utils/cv-render'
+import { componerOgCv } from '../../utils/cv-og'
+
+const { id } = Astro.params
+
+let ogTitle: string | undefined
+let ogDescription: string | undefined
+let curriculum: Curriculum | null = null
+let estadoCv: 'activo' | 'oculto' | 'no_existe' = 'no_existe'
+
+function conTimeout<T>(promise: PromiseLike<T>, ms: number): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error('Tiempo de espera agotado')), ms),
+    ),
+  ])
+}
+
+if (id) {
+  try {
+    const resultado = await conTimeout(obtenerCurriculumPublico(id), 8000)
+    curriculum = resultado.cv
+    estadoCv = resultado.estado
+  } catch {
+    curriculum = null
+    estadoCv = 'no_existe'
+  }
+}
+
+if (curriculum) {
+  // Formato de compartir propio del CV (ver utils/cv-og.ts): no reutiliza el
+  // formato de comercios. Sin foto: cae al logo de la app.
+  const og = componerOgCv(curriculum)
+  ogTitle = og.titulo
+  ogDescription = og.descripcion
+}
+---
+
+<Layout
+  title={curriculum ? `${curriculum.nombre} · Búsqueda Laboral` : 'CV no encontrado'}
+  description={ogDescription ?? 'CV en la bolsa de trabajo de Búsqueda Laboral'}
+  ogTitle={ogTitle}
+  ogDescription={ogDescription}
+>
+  <main class="max-w-2xl mx-auto px-4 sm:px-6 pt-6 pb-10 flex flex-col min-h-dvh">
+    <div class="w-full flex-1">
+      <div class="flex items-center justify-between gap-3 mb-6">
+        <p class="text-sm font-bold tracking-wide" style="color: var(--primary)">
+          {curriculum ? `CV de ${curriculum.nombre}` : 'CV'}
+        </p>
+        <BackButton href="/" label="Volver a la cartelera" />
+      </div>
+
+      {estadoCv === 'activo' && curriculum ? (
+        <>
+          <div
+            class="rounded-3xl overflow-hidden"
+            data-profile-id={curriculum.userId}
+            style="background: var(--elevated); border: 1px solid var(--border-strong); box-shadow: var(--card-shadow)"
+          >
+            <Fragment
+              set:html={renderCvHtml(
+                curriculum,
+                curriculum.formato || 'clasico',
+                // El avatar de esta página está siempre arriba del pliegue:
+                // diferirlo retrasaría el LCP de la vista pública.
+                { lazy: false },
+              )}
+            />
+
+            <div class="px-6 sm:px-8 pb-6 space-y-3">
+              <button
+                id="btn-compartir-cv"
+                type="button"
+                class="w-full py-3 min-h-[48px] rounded-2xl text-sm font-bold transition-all active:scale-[0.98] cursor-pointer touch-manipulation"
+                style="background: #f59e0b; color: #ffffff"
+              >
+                Compartir
+              </button>
+
+              <button
+                id="btn-descargar-cv"
+                type="button"
+                class="w-full py-3 min-h-[48px] rounded-2xl text-sm font-bold transition-all active:scale-[0.98] cursor-pointer touch-manipulation flex items-center justify-center gap-2"
+                style="background: var(--surface); color: var(--primary); border: 1px solid var(--border-strong)"
+              >
+                <span
+                  id="spinner-pdf"
+                  class="hidden w-4 h-4 border-2 border-t-transparent rounded-full animate-spin"
+                  style="border-color: var(--primary); border-top-color: transparent"
+                />
+                <span id="texto-pdf">Descargar CV en PDF</span>
+              </button>
+            </div>
+          </div>
+
+          <script
+            type="application/json"
+            id="cv-data"
+            set:html={JSON.stringify(curriculum).replace(/</g, '\\u003c')}
+          />
+        </>
+      ) : estadoCv === 'oculto' ? (
+        <div
+          class="text-center py-14 px-6 rounded-3xl border"
+          style="background: var(--elevated-40); border-color: var(--border-strongest)"
+        >
+          <span class="text-4xl block mb-3" aria-hidden="true">
+            👁️‍🗨️
+          </span>
+          <p class="font-bold mb-2" style="color: #92400e">
+            Este CV está oculto por su dueño
+          </p>
+          <p class="text-sm mb-4" style="color: var(--secondary)">
+            La persona que lo publicó lo ocultó de la cartelera. Podés buscar otros CVs disponibles.
+          </p>
+          <a
+            href="/"
+            class="inline-flex items-center justify-center px-6 py-3 min-h-[48px] rounded-2xl text-sm font-bold transition-colors cursor-pointer"
+            style="background: #f59e0b; color: #ffffff"
+          >
+            Volver a la cartelera
+          </a>
+        </div>
+      ) : (
+        <div
+          class="text-center py-14 px-6 rounded-3xl border"
+          style="background: var(--elevated-40); border-color: var(--border-strongest)"
+        >
+          <span id="cv-id" data-id={id} class="hidden" />
+          <span class="text-4xl block mb-3" aria-hidden="true">
+            🔍
+          </span>
+          <p class="font-bold mb-2" style="color: var(--primary)">
+            Este CV no está disponible
+          </p>
+          <p class="text-sm mb-4" style="color: var(--secondary)">
+            Puede que haya sido eliminado o despublicado por su dueño.
+          </p>
+          <a
+            href="/"
+            class="inline-flex items-center justify-center px-6 py-3 min-h-[48px] rounded-2xl text-sm font-bold transition-colors cursor-pointer"
+            style="background: #f59e0b; color: #ffffff"
+          >
+            Volver a la cartelera
+          </a>
+        </div>
+      )}
+    </div>
+
+    <div
+      id="toast-cv"
+      class="hidden fixed bottom-24 left-1/2 -translate-x-1/2 z-50 px-5 py-3 rounded-2xl text-xs font-semibold shadow-lg transition-opacity duration-300"
+      style="background: var(--elevated); border: 1px solid var(--border-strong); color: var(--primary)"
+    ></div>
+  </main>
+</Layout>
+
+<script>
+  import { compartirLink } from '../../utils/compartir'
+  import { obtenerSesionActiva } from '../../services/auth.service'
+  import { initPdfDownloadHandler } from '../../utils/pdf-handler'
+  import { obtenerCurriculumPublico } from '../../services/curriculum.service'
+  import type { Curriculum } from '../../utils/constants'
+
+  const curriculumData = (() => {
+    const el = document.getElementById('cv-data')
+    if (!el) return null
+    try {
+      return JSON.parse(el.textContent || 'null') as Curriculum
+    } catch {
+      return null
+    }
+  })()
+
+  const cvId = (() => {
+    const el = document.getElementById('cv-id')
+    return el?.getAttribute('data-id') || null
+  })()
+
+  // Retry client-side: si el server renderizó "CV no disponible" puede ser un
+  // falso negativo por cold start de la función Netlify (timeout en SSR). Si el
+  // CV realmente existe y está activo, recargamos para mostrarlo en lugar de
+  // mostrar un error que desaparece al refrescar.
+  if (!curriculumData && cvId) {
+    const reintentar = async () => {
+      try {
+        const resultado = await obtenerCurriculumPublico(cvId)
+        if (resultado.estado === 'activo' && resultado.cv) {
+          window.location.replace(window.location.href)
+        }
+      } catch {
+        // sin retry adicional: mantener el estado de "no disponible"
+      }
+    }
+    window.setTimeout(reintentar, 2500)
+  }
+
+  const toast = document.getElementById('toast-cv') as HTMLDivElement
+  const userId = document
+    .querySelector('[data-profile-id]')
+    ?.getAttribute('data-profile-id') as string
+
+  obtenerSesionActiva().then((sesion) => {
+    if (sesion && userId && sesion.id === userId) {
+      window.location.href = '/mi-cv'
+    }
+  })
+
+  function mostrarToast(mensaje: string) {
+    if (!toast) return
+    toast.textContent = mensaje
+    toast.classList.remove('hidden')
+    window.setTimeout(() => toast.classList.add('hidden'), 3500)
+  }
+
+  document.getElementById('btn-compartir-cv')?.addEventListener('click', () => {
+    const nombre = document.querySelector('h1')?.textContent || 'CV'
+    void compartirLink(window.location.href, nombre, toast)
+  })
+
+  initPdfDownloadHandler({
+    btnId: 'btn-descargar-cv',
+    spinnerId: 'spinner-pdf',
+    textoId: 'texto-pdf',
+    getData: () => curriculumData,
+    onError: () => mostrarToast('No se pudo generar el PDF. Probá de nuevo.'),
+  })
+</script>
