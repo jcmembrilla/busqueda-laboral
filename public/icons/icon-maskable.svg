@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <!-- Variante maskable: fondo full-bleed y maletín al 60% central para que el
+       recorte circular/pill de Android no lo corte. -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fbbf24" />
+      <stop offset="1" stop-color="#d97706" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#bg)" />
+  <g
+    transform="translate(106 106) scale(0.586)"
+    fill="none"
+    stroke="#1f2937"
+    stroke-width="30"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <path d="M208 180v-64a24 24 0 0 1 24-24h48a24 24 0 0 1 24 24v64" />
+    <rect x="112" y="180" width="288" height="200" rx="36" />
+    <path d="M218 260h76" />
+  </g>
+</svg>

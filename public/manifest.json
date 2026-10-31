@@ -9,9 +9,15 @@
   "lang": "es-AR",
   "dir": "ltr",
   "background_color": "#0f1411",
-  "theme_color": "#34d399",
-  "categories": ["business", "shopping", "social"],
+  "theme_color": "#f59e0b",
+  "categories": ["business", "social"],
   "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
     {
       "src": "/logo.webp",
       "sizes": "512x512",

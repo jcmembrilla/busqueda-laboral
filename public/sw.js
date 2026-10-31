@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'busqueda-laboral-v1'
+const CACHE_VERSION = 'busqueda-laboral-v2'
 const STATIC_CACHE = `static-${CACHE_VERSION}`
 const DYNAMIC_CACHE = `dynamic-${CACHE_VERSION}`
 const IMAGE_CACHE = `images-${CACHE_VERSION}`
@@ -6,6 +6,7 @@ const IMAGE_CACHE = `images-${CACHE_VERSION}`
 const APP_SHELL = [
   '/',
   '/manifest.json',
+  '/icons/icon.svg',
   '/icons/icon-192x192.png',
   '/icons/icon-512x512.png',
   '/apple-touch-icon.png',

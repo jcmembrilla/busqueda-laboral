@@ -35,7 +35,7 @@
   --alert-success-border: rgba(16, 185, 129, 0.5);
   --alert-success-text: #6ee7b7;
   --modal-overlay: rgba(0, 0, 0, 0.7);
-  --accent: #059669;
+  --accent: #f59e0b;
   --card-radius: 1rem;
   --card-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.25);
   --card-shadow-hover: 0 12px 40px -8px rgba(0, 0, 0, 0.35);
@@ -71,7 +71,7 @@
   --alert-success-border: #86efac;
   --alert-success-text: #166534;
   --modal-overlay: rgba(0, 0, 0, 0.3);
-  --accent: #059669;
+  --accent: #b87912;
   --card-radius: 1rem;
   --card-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.08);
   --card-shadow-hover: 0 12px 40px -8px rgba(0, 0, 0, 0.12);
