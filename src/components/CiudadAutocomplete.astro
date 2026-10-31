@@ -22,7 +22,7 @@ const {
   <input
     type="text"
     id={inputId}
-    class="ciudad-autocomplete-input w-full px-4 py-3 rounded-2xl text-sm focus:outline-none focus:border-emerald-500 transition-colors"
+    class="ciudad-autocomplete-input w-full px-4 py-3 rounded-2xl text-sm focus:outline-none focus:border-amber-500 transition-colors"
     style="background: var(--surface); color: var(--primary); border: 1px solid var(--border-strong)"
     placeholder={placeholder}
     autocomplete="off"
@@ -91,7 +91,7 @@ const {
           li.setAttribute('role', 'option')
           li.setAttribute('aria-selected', 'false')
           li.className =
-            'px-4 py-3 text-sm cursor-pointer flex items-center gap-2 transition-colors hover:bg-emerald-500/10'
+            'px-4 py-3 text-sm cursor-pointer flex items-center gap-2 transition-colors hover:bg-amber-500/10'
           li.style.color = 'var(--primary)'
 
           const texto = document.createElement('span')
@@ -141,11 +141,11 @@ const {
         if (indice >= 0 && indice < items.length) {
           if (indiceSeleccionado >= 0 && items[indiceSeleccionado]) {
             items[indiceSeleccionado].setAttribute('aria-selected', 'false')
-            items[indiceSeleccionado].classList.remove('bg-emerald-500/20', 'font-semibold')
+            items[indiceSeleccionado].classList.remove('bg-amber-500/20', 'font-semibold')
           }
           indiceSeleccionado = indice
           items[indiceSeleccionado].setAttribute('aria-selected', 'true')
-          items[indiceSeleccionado].classList.add('bg-emerald-500/20', 'font-semibold')
+          items[indiceSeleccionado].classList.add('bg-amber-500/20', 'font-semibold')
           items[indiceSeleccionado].scrollIntoView({ block: 'nearest' })
         }
       }

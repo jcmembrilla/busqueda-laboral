@@ -1,7 +1,7 @@
 const STORAGE_KEY = 'bl_tema'
 const THEME_COLOR_META = 'meta[name="theme-color"]'
 const COLOR_LIGHT = '#f59e0b'
-const COLOR_DARK = '#0f1411'
+const COLOR_DARK = '#141414'
 
 export function obtenerTema(): 'light' | 'dark' {
   if (typeof localStorage === 'undefined') return 'light'

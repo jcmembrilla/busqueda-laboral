@@ -2,7 +2,7 @@
 // con encuadre, publicar/ocultar, eliminar, plantillas, PDF y compartir).
 // Vive en un módulo aparte para que mi-cv.astro sólo tenga el markup y para
 // poder testear y dividir esta lógica sin tocar el HTML.
-import { obtenerSesionActiva } from '../../services/auth.service'
+import { obtenerSesionActiva, cerrarSesion } from '../../services/auth.service'
 import {
   guardarCurriculum,
   cambiarEstadoCurriculum,
@@ -39,6 +39,19 @@ export async function iniciarPanelMiCv() {
 
   document.getElementById('loading-screen')?.classList.add('hidden')
   document.getElementById('contenido-cv')?.classList.remove('hidden')
+
+  // Cerrar sesión: vuelve a la cartelera. Si Supabase ya no tiene sesión,
+  // cerrarSesion falla pero el destino es el mismo.
+  document.getElementById('btn-cerrar-sesion')?.addEventListener('click', async () => {
+    const boton = document.getElementById('btn-cerrar-sesion') as HTMLButtonElement | null
+    if (boton) boton.disabled = true
+    try {
+      await cerrarSesion()
+    } catch {
+      // Sin sesión activa: igual redirigimos.
+    }
+    window.location.assign('/')
+  })
 
   const tabMiCv = document.getElementById('tab-micv') as HTMLButtonElement
   const tabEjemplo = document.getElementById('tab-ejemplo') as HTMLButtonElement

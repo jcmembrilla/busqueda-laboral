@@ -1,6 +1,6 @@
 ---
 interface Props {
-  activePage?: 'laboral' | 'dashboard' | 'login' | 'none'
+  activePage?: 'cartelera' | 'micv' | 'none'
 }
 
 const { activePage = 'none' } = Astro.props
@@ -15,7 +15,7 @@ const { activePage = 'none' } = Astro.props
     <a
       href="/"
       class="flex min-h-14 min-w-20 flex-col items-center justify-center gap-1 px-3 text-xs font-semibold"
-      style={activePage === 'laboral' ? 'color:#b87912' : 'color:var(--tertiary)'}
+      style={activePage === 'cartelera' ? 'color:#b87912' : 'color:var(--tertiary)'}
     >
       <svg
         class="h-5 w-5"
@@ -33,7 +33,7 @@ const { activePage = 'none' } = Astro.props
     <a
       href="/mi-cv"
       class="flex min-h-14 min-w-20 flex-col items-center justify-center gap-1 px-3 text-xs font-semibold"
-      style={activePage === 'dashboard' ? 'color:#b87912' : 'color:var(--tertiary)'}
+      style={activePage === 'micv' ? 'color:#b87912' : 'color:var(--tertiary)'}
     >
       <svg
         class="h-5 w-5"

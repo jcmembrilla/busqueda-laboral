@@ -27,7 +27,7 @@
   --border-strongest: #2a2a2a;
   --overlay: rgba(0, 0, 0, 0.6);
   --logo-border: #121212;
-  --body-bg: radial-gradient(ellipse at center, #121212, #0f1411, #0a0a0a);
+  --body-bg: radial-gradient(ellipse at center, #121212, #141414, #0a0a0a);
   --alert-error-bg: rgba(127, 29, 29, 0.4);
   --alert-error-border: rgba(239, 68, 68, 0.5);
   --alert-error-text: #fca5a5;
